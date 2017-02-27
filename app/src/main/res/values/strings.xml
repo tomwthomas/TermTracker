@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Term Tracker</string>
+    <string name="Main_btn_manage_terms">Manage Terms</string>
+    <string name="Main_btn_manage_courses">Manage Courses</string>
+    <string name="Main_txt_upcoming_milestones">Upcoming Milestones:</string>
+    <string name="Main_txt_courses_in_current_term">Courses in current Term:</string>
+    <string name="title_activity_managed_terms">ManagedTermsActivity</string>
+    <string name="title_activity_manage_courses">ManageCoursesActivity</string>
 </resources>

@@ -14,12 +14,14 @@ public class DBOpenHelper extends SQLiteOpenHelper{
     // Constants to make working with DB easier throughout the application broken down by table
     // NOTES TABLE
     public static final String TABLE_NOTES = "tbl_notes";
-    public static final String NOTES_ID = "id";
+    public static final String NOTES_ID = "_id";
     public static final String NOTES_PID = "parentID";
     public static final String NOTES_TYPE = "parentType";
     public static final String NOTES_DETAILS = "details";
     public static final String NOTES_IMG = "imgPath";
     public static final String NOTES_TIMESTAMP = "timestamp";
+
+    public static final String[] NOTES_ALL_COLUMNS = {NOTES_ID, NOTES_PID, NOTES_TYPE, NOTES_DETAILS, NOTES_IMG, NOTES_TIMESTAMP};
 
     //SQL to create notes table
     private static final String CREATE_TABLE_NOTES =
@@ -47,4 +49,5 @@ public class DBOpenHelper extends SQLiteOpenHelper{
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTES);
         onCreate(db);
     }
+
 }
