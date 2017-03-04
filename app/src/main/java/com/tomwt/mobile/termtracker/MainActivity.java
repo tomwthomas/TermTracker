@@ -3,6 +3,7 @@ package com.tomwt.mobile.termtracker;
 import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
@@ -25,19 +26,33 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        insertNote("New Note");
+        // insertNote("New Note");
 
 
 
 
+        // build out the list of upcoming milestones and display them in the UI
+        {
+            Cursor cursor = getContentResolver().query(TermTrackerProvider.CONTENT_URI, DBOpenHelper.NOTES_ALL_COLUMNS, null, null, null, null);
+            String[] from = {DBOpenHelper.NOTES_DETAILS};
+            int[] to = {android.R.id.text1};
+            CursorAdapter cursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, cursor, from, to, 0);
 
-        Cursor cursor = getContentResolver().query(TermTrackerProvider.CONTENT_URI, DBOpenHelper.NOTES_ALL_COLUMNS, null, null, null, null);
-        String[] from = {DBOpenHelper.NOTES_DETAILS};
-        int[] to = {android.R.id.text1};
-        CursorAdapter cursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, cursor, from, to, 0);
+            ListView list = (ListView) findViewById(android.R.id.list);
+            list.setAdapter(cursorAdapter);
+        }
 
-        ListView list = (ListView) findViewById(android.R.id.list);
-        list.setAdapter(cursorAdapter);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+
+        }
+        else {
+
+        }
     }
 
     // called when the user clicks the Manage Terms button in the UI
