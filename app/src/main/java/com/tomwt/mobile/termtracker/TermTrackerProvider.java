@@ -35,6 +35,7 @@ public class TermTrackerProvider extends ContentProvider {
     public boolean onCreate() {
         DBOpenHelper dbHelper = new DBOpenHelper(getContext());
         termTrackerDB = dbHelper.getWritableDatabase();
+        // dbHelper.onUpgrade(termTrackerDB, 1, 1); // nuke old version of database and recreate with new DB schema
         return true;
     }
 

@@ -25,7 +25,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        insertNote("New Note");
+        insertNote("New Note");
+
 
 
 
