@@ -45,7 +45,13 @@ public class MainActivity extends AppCompatActivity {
 
         // build out the list of upcoming milestones and display them in the GUI
         {
-            Cursor cursor = getContentResolver().query(TermTrackerProvider.CONTENT_URI, DBOpenHelper.NOTES_ALL_COLUMNS, null, null, null, null);
+
+//            public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+//            return termTrackerDB.query(DBOpenHelper.TABLE_NOTES, DBOpenHelper.NOTES_ALL_COLUMNS, selection, null, null, null, DBOpenHelper.NOTES_TIMESTAMP + " DESC");
+//        }
+
+             Cursor cursor = getContentResolver().query(TermTrackerProvider.CONTENT_URI, DBOpenHelper.NOTES_ALL_COLUMNS, null, null, null, null);
+//            Cursor cursor = getContentResolver().query(DBOpenHelper.TABLE_NOTES, DBOpenHelper.NOTES_ALL_COLUMNS, null, null, null);
             String[] from = {DBOpenHelper.NOTES_DETAILS};
             int[] to = {android.R.id.text1};
             CursorAdapter cursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, cursor, from, to, 0);

@@ -1,7 +1,9 @@
 package com.tomwt.mobile.termtracker;
 
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -11,9 +13,13 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 public class ManagedTermsActivity extends AppCompatActivity {
+
+    private static final int EDITOR_REQUEST_CODE = 1001;
+
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,15 +40,25 @@ public class ManagedTermsActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Manage Terms");
 
         // build out the list of upcoming milestones and display them in the GUI
-        {
-            Cursor cursor = getContentResolver().query(TermTrackerProvider.CONTENT_URI, DBOpenHelper.NOTES_ALL_COLUMNS, null, null, null, null);
-            String[] from = {DBOpenHelper.NOTES_DETAILS};
-            int[] to = {android.R.id.text1};
-            CursorAdapter cursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, cursor, from, to, 0);
+        Cursor cursor = getContentResolver().query(TermTrackerProvider.CONTENT_URI, DBOpenHelper.NOTES_ALL_COLUMNS, null, null, null, null);
+        String[] from = {DBOpenHelper.NOTES_DETAILS};
+        int[] to = {android.R.id.text1};
+        CursorAdapter cursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, cursor, from, to, 0);
 
-            ListView list = (ListView) findViewById(android.R.id.list);
-            list.setAdapter(cursorAdapter);
-        }
+        ListView list = (ListView) findViewById(android.R.id.list);
+        list.setAdapter(cursorAdapter);
+
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(ManagedTermsActivity.this, ViewTermActivity.class);
+                Uri uri = Uri.parse(TermTrackerProvider.CONTENT_URI + "/" + id);
+                intent.putExtra(TermTrackerProvider.CONTENT_ITEM_TYPE, uri);
+                startActivityForResult(intent, EDITOR_REQUEST_CODE);
+                // startActivity(intent);
+            }
+        });
+
     }
 
 }

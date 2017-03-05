@@ -6,4 +6,5 @@
     <string name="Main_txt_courses_in_current_term">Courses in current Term:</string>
     <string name="title_activity_managed_terms">ManagedTermsActivity</string>
     <string name="title_activity_manage_courses">ManageCoursesActivity</string>
+    <string name="title_activity_view_term">ViewTermActivity</string>
 </resources>

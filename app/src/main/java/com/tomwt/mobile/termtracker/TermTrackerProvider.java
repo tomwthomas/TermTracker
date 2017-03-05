@@ -48,6 +48,11 @@ public class TermTrackerProvider extends ContentProvider {
     @Nullable
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+
+        if(uriMatcher.match(uri) == NOTES_ID) {
+            selection = DBOpenHelper.NOTES_ID + "=" + uri.getLastPathSegment();
+        }
+
         return termTrackerDB.query(DBOpenHelper.TABLE_NOTES, DBOpenHelper.NOTES_ALL_COLUMNS, selection, null, null, null, DBOpenHelper.NOTES_TIMESTAMP + " DESC");
     }
 
