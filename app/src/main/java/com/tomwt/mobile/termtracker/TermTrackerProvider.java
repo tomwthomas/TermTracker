@@ -2,6 +2,7 @@ package com.tomwt.mobile.termtracker;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -39,6 +40,11 @@ public class TermTrackerProvider extends ContentProvider {
         return true;
     }
 
+    public void onCreate(Context context) {
+        DBOpenHelper dbOpenHelper = new DBOpenHelper(context);
+        termTrackerDB = dbOpenHelper.getWritableDatabase();
+    }
+
     @Nullable
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
@@ -66,5 +72,19 @@ public class TermTrackerProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         return termTrackerDB.update(DBOpenHelper.TABLE_NOTES, values, selection, selectionArgs);
+    }
+
+    public Cursor getCurrentTermProgress(Context context) {
+        String sql = "select " + DBOpenHelper.NOTES_ID + " from " + DBOpenHelper.TABLE_NOTES;
+        String[] selectionArgs = {};
+
+        return rawQuery(context, sql, selectionArgs);
+    }
+
+    private Cursor rawQuery(Context context, String sql, String[] selectionArgs) {
+        if(termTrackerDB == null)
+            onCreate(context);
+
+        return termTrackerDB.rawQuery(sql, selectionArgs);
     }
 }
