@@ -13,15 +13,11 @@
     tools:context="com.tomwt.mobile.termtracker.ManagedTermsActivity"
     tools:showIn="@layout/activity_managed_terms">
 
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Hello first sub activity!"/>
-
     <ListView
         android:id="@+id/android:list"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:layout_below="@+id/txt_upcoming_milestones"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true" />
+
 </RelativeLayout>
