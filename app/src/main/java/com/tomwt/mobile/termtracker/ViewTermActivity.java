@@ -1,9 +1,11 @@
 package com.tomwt.mobile.termtracker;
 
+import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -18,11 +20,22 @@ import android.widget.Toast;
 
 public class ViewTermActivity extends AppCompatActivity {
 
-    private  String action;
+    private String action;
     private EditText editor;
-    private String termFilter;
+    private String notesFilter;
     private String oldText;
 
+    // REFACTORED::  ADDED
+    private String termsFilter;
+    private EditText titleEditor;
+    private EditText startEditor;
+    private EditText endEditor;
+    private String titleTextOld;
+    private String startTextOld;
+    private String endTextOld;
+
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +55,10 @@ public class ViewTermActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Term Information");
 
         editor = (EditText) findViewById(R.id.editText);
+        // REFACTORED ADDED:
+        titleEditor = (EditText) findViewById(R.id.data_title);
+        startEditor = (EditText) findViewById(R.id.data_startDate);
+        endEditor = (EditText) findViewById(R.id.data_endDate);
 
         Intent intent = getIntent();
 
@@ -52,14 +69,25 @@ public class ViewTermActivity extends AppCompatActivity {
             setTitle("THIS IS A NEW TITLE...");
         } else {
             action = Intent.ACTION_EDIT;
-            termFilter = DBOpenHelper.NOTES_ID + "=" + uri.getLastPathSegment();
+            notesFilter = DBOpenHelper.NOTES_ID + "=" + uri.getLastPathSegment();
 
-            Cursor cursor = getContentResolver().query(uri,
-                    DBOpenHelper.NOTES_ALL_COLUMNS, termFilter, null, null);
+            Cursor cursor = getContentResolver().query(uri, DBOpenHelper.NOTES_ALL_COLUMNS, notesFilter, null, null);
             cursor.moveToFirst();
             oldText = cursor.getString(cursor.getColumnIndex(DBOpenHelper.NOTES_DETAILS));
             editor.setText(oldText);
             editor.requestFocus();
+
+            // REFACTORED ADDED:
+            Uri termURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_TERMS);
+            termsFilter = DBOpenHelper.TERMS_ID + "=" + uri.getLastPathSegment();
+            Cursor termCursor = getContentResolver().query(termURI, DBOpenHelper.TERMS_ALL_COLUMNS, termsFilter, null, null);
+            termCursor.moveToFirst();
+            titleTextOld = termCursor.getString(termCursor.getColumnIndex(DBOpenHelper.TERMS_TITLE));
+            startTextOld = termCursor.getString(termCursor.getColumnIndex(DBOpenHelper.TERMS_START));
+            endTextOld = termCursor.getString(termCursor.getColumnIndex(DBOpenHelper.TERMS_END));
+            titleEditor.setText(titleTextOld);
+            startEditor.setText(startTextOld);
+            endEditor.setText(endTextOld);
         }
     }
 
@@ -90,7 +118,7 @@ public class ViewTermActivity extends AppCompatActivity {
     private void updateNote(String noteText) {
         ContentValues values = new ContentValues();
         values.put(DBOpenHelper.NOTES_DETAILS, noteText);
-        getContentResolver().update(TermTrackerProvider.CONTENT_URI, values, termFilter, null);
+        getContentResolver().update(TermTrackerProvider.CONTENT_URI, values, notesFilter, null);
         Toast.makeText(this, "NOTE UPDATED...", Toast.LENGTH_SHORT).show();
         setResult(RESULT_OK);
     }

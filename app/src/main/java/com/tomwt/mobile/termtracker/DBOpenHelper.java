@@ -60,7 +60,7 @@ public class DBOpenHelper extends SQLiteOpenHelper{
     public static final String TERMS_TITLE = "title";
     public static final String TERMS_START = "startDate";
     public static final String TERMS_END = "endDate";
-    public static final String[] TERMS_ALL_COLUMNS = {TERMS_ID, TERMS_TITLE, TERMS_START, TERMS_START, TERMS_END};
+    public static final String[] TERMS_ALL_COLUMNS = {TERMS_ID, TERMS_TITLE, TERMS_START, TERMS_END};
 
     // CoursesAssessmentsXRef TABLE - TODO::  May need to add CourseID to the Assessments table and allow only one term per course for query simplicity
     public static final String TABLE_COURSES_ASSESSMENTS_XREF = "tbl_coursesAssessmentsXRef";
