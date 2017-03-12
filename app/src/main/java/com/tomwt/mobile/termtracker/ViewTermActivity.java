@@ -20,7 +20,7 @@ public class ViewTermActivity extends AppCompatActivity {
 
     private  String action;
     private EditText editor;
-    private String noteFilter;
+    private String termFilter;
     private String oldText;
 
     @Override
@@ -39,6 +39,7 @@ public class ViewTermActivity extends AppCompatActivity {
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("Term Information");
 
         editor = (EditText) findViewById(R.id.editText);
 
@@ -51,10 +52,10 @@ public class ViewTermActivity extends AppCompatActivity {
             setTitle("THIS IS A NEW TITLE...");
         } else {
             action = Intent.ACTION_EDIT;
-            noteFilter = DBOpenHelper.NOTES_ID + "=" + uri.getLastPathSegment();
+            termFilter = DBOpenHelper.NOTES_ID + "=" + uri.getLastPathSegment();
 
             Cursor cursor = getContentResolver().query(uri,
-                    DBOpenHelper.NOTES_ALL_COLUMNS, noteFilter, null, null);
+                    DBOpenHelper.NOTES_ALL_COLUMNS, termFilter, null, null);
             cursor.moveToFirst();
             oldText = cursor.getString(cursor.getColumnIndex(DBOpenHelper.NOTES_DETAILS));
             editor.setText(oldText);
@@ -89,7 +90,7 @@ public class ViewTermActivity extends AppCompatActivity {
     private void updateNote(String noteText) {
         ContentValues values = new ContentValues();
         values.put(DBOpenHelper.NOTES_DETAILS, noteText);
-        getContentResolver().update(TermTrackerProvider.CONTENT_URI, values, noteFilter, null);
+        getContentResolver().update(TermTrackerProvider.CONTENT_URI, values, termFilter, null);
         Toast.makeText(this, "NOTE UPDATED...", Toast.LENGTH_SHORT).show();
         setResult(RESULT_OK);
     }

@@ -27,7 +27,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        insertTerm("Term1", "3/11/2017", "6/11/2017");
+//        insertTerm("Term2", "3/11/2017", "6/11/2017");
+//        insertTerm("Term3", "3/11/2017", "6/11/2017");
+//        insertTerm("Term4", "3/11/2017", "6/11/2017");
+//        insertTerm("Term5", "3/11/2017", "6/11/2017");
+//        insertTerm("Term6", "3/11/2017", "6/11/2017");
+//        insertTerm("Term7", "3/11/2017", "6/11/2017");
+//        insertTerm("Term8", "3/11/2017", "6/11/2017");
+//        insertTerm("Term9", "3/11/2017", "6/11/2017");
+//        insertTerm("Term10", "3/11/2017", "6/11/2017");
+//        insertTerm("Term11", "3/11/2017", "6/11/2017");
+//        insertTerm("Term12", "3/11/2017", "6/11/2017");
+//        insertTerm("Term13", "3/11/2017", "6/11/2017");
+
 //         insertNote("New Note");
 
         // build out the progress bar area of the GUI
@@ -53,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
              Cursor cursor = getContentResolver().query(TermTrackerProvider.CONTENT_URI, DBOpenHelper.NOTES_ALL_COLUMNS, null, null, null, null);
 //            Cursor cursor = getContentResolver().query(DBOpenHelper.TABLE_NOTES, DBOpenHelper.NOTES_ALL_COLUMNS, null, null, null);
-            String[] from = {DBOpenHelper.NOTES_DETAILS};
+            String[] from = {DBOpenHelper.NOTES_DETAILS}; // NOTES_DETAILS
             int[] to = {android.R.id.text1};
             CursorAdapter cursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, cursor, from, to, 0);
 

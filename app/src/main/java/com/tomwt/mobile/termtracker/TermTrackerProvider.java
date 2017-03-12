@@ -54,7 +54,8 @@ public class TermTrackerProvider extends ContentProvider {
             selection = DBOpenHelper.NOTES_ID + "=" + uri.getLastPathSegment();
         }
 
-        return termTrackerDB.query(DBOpenHelper.TABLE_NOTES, DBOpenHelper.NOTES_ALL_COLUMNS, selection, null, null, null, DBOpenHelper.NOTES_TIMESTAMP + " DESC");
+        // REFACTORED:: return termTrackerDB.query(DBOpenHelper.TABLE_NOTES, DBOpenHelper.NOTES_ALL_COLUMNS, selection, null, null, null, DBOpenHelper.NOTES_TIMESTAMP + " DESC");
+        return termTrackerDB.query(uri.getPathSegments().get(0).toString(), projection, selection, null, null, null, sortOrder);
     }
 
     @Nullable

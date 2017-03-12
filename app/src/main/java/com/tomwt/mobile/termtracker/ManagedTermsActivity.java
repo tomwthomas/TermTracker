@@ -12,6 +12,7 @@ import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -40,8 +41,12 @@ public class ManagedTermsActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Manage Terms");
 
         // build out the list of upcoming milestones and display them in the GUI
-        Cursor cursor = getContentResolver().query(TermTrackerProvider.CONTENT_URI, DBOpenHelper.NOTES_ALL_COLUMNS, null, null, null, null);
-        String[] from = {DBOpenHelper.NOTES_DETAILS};
+        // REFACTORED:: ADDED
+        Uri termURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_TERMS);
+        // REFACTORED:: Cursor cursor = getContentResolver().query(TermTrackerProvider.CONTENT_URI, DBOpenHelper.NOTES_ALL_COLUMNS, null, null, null, null);
+        Cursor cursor = getContentResolver().query(termURI, DBOpenHelper.TERMS_ALL_COLUMNS, null, null, null, null);
+        // REFACTORED:: String[] from = {DBOpenHelper.NOTES_DETAILS};
+        String[] from = {DBOpenHelper.TERMS_TITLE}; // TERMS_TITLE
         int[] to = {android.R.id.text1};
         CursorAdapter cursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, cursor, from, to, 0);
 
@@ -53,6 +58,7 @@ public class ManagedTermsActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(ManagedTermsActivity.this, ViewTermActivity.class);
                 Uri uri = Uri.parse(TermTrackerProvider.CONTENT_URI + "/" + id);
+                Log.d("ManagedTermsActivity", "termURI: " + uri.toString());
                 intent.putExtra(TermTrackerProvider.CONTENT_ITEM_TYPE, uri);
                 startActivityForResult(intent, EDITOR_REQUEST_CODE);
                 // startActivity(intent);
