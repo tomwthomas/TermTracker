@@ -40,7 +40,37 @@ public class MainActivity extends AppCompatActivity {
 //        insertTerm("Term12", "3/11/2017", "6/11/2017");
 //        insertTerm("Term13", "3/11/2017", "6/11/2017");
 
-//         insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+//        insertNote("New Note");
+
 
         // build out the progress bar area of the GUI
         {

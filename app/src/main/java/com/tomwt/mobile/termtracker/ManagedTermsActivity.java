@@ -33,8 +33,15 @@ public class ManagedTermsActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+
+                Intent intent = new Intent(ManagedTermsActivity.this, ViewTermActivity.class);
+//                Uri termURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_TERMS);
+//                Uri uri = Uri.parse(TermTrackerProvider.CONTENT_URI + "/" + id);
+//                Log.d("ManagedTermsActivity", "termURI: " + uri.toString());
+//                intent.putExtra(TermTrackerProvider.CONTENT_ITEM_TYPE, uri);
+                startActivityForResult(intent, EDITOR_REQUEST_CODE);
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

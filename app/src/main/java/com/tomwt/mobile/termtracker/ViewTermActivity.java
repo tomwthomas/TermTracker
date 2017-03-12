@@ -12,6 +12,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -101,10 +102,10 @@ public class ViewTermActivity extends AppCompatActivity {
 
         switch (action) {
             case Intent.ACTION_INSERT:
-                if (newText.length() == 0) {
+                if (titleTextNew.length() == 0 || startTextNew.length() == 0 || endTextNew.length() == 0) {
                     setResult(RESULT_CANCELED);
                 } else {
-                    insertNote(newText);
+                    insertTerm(titleTextNew, startTextNew, endTextNew);
                 }
                 break;
             case Intent.ACTION_EDIT:
@@ -130,6 +131,13 @@ public class ViewTermActivity extends AppCompatActivity {
         setResult(RESULT_OK);
     }
 
+    private void insertNote(String noteText) {
+        ContentValues values = new ContentValues();
+        values.put(DBOpenHelper.NOTES_DETAILS, noteText);
+        getContentResolver().insert(TermTrackerProvider.CONTENT_URI, values);
+        setResult(RESULT_OK);
+    }
+
     // REFACTORED:: ADDED
     private void updateTerm(String titleText, String startText, String endText) {
         ContentValues values = new ContentValues();
@@ -142,12 +150,17 @@ public class ViewTermActivity extends AppCompatActivity {
         setResult(RESULT_OK);
     }
 
-    private void insertNote(String noteText) {
+    private void insertTerm(String title, String startDate, String endDate) {
         ContentValues values = new ContentValues();
-        values.put(DBOpenHelper.NOTES_DETAILS, noteText);
-        getContentResolver().insert(TermTrackerProvider.CONTENT_URI, values);
-        setResult(RESULT_OK);
+        values.put(DBOpenHelper.TERMS_TITLE, title);
+        values.put(DBOpenHelper.TERMS_START, startDate);
+        values.put(DBOpenHelper.TERMS_END, endDate);
+        Uri termURI = getContentResolver().insert(Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_TERMS), values);
+        Log.d("MainActivity", "termURI: " + termURI.toString());
+        Log.d("MainActivity", "Inserted a term " + termURI.getLastPathSegment());
     }
+
+
 
     // all three of the below methods are required to ensure full capture of the user leaving this activity
     @Override
