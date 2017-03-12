@@ -13,12 +13,60 @@
     tools:context="com.tomwt.mobile.termtracker.ViewTermActivity"
     tools:showIn="@layout/activity_view_term">
 
+     <TextView
+         android:id="@+id/txt_title"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:text="Term Title:"/>
+
     <EditText
+        android:id="@+id/data_title"
+        android:layout_below="@id/txt_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="Title placeholder text"/>
+
+    <TextView
+        android:id="@+id/txt_startDate"
+        android:layout_below="@+id/data_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Term Start Date:"/>
+
+    <EditText
+        android:id="@+id/data_startDate"
+        android:layout_below="@id/txt_startDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start date placeholder text"/>
+
+    <TextView
+        android:id="@+id/txt_endDate"
+        android:layout_below="@+id/data_startDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Term End Date:"/>
+
+    <EditText
+        android:id="@+id/data_endDate"
+        android:layout_below="@id/txt_endDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="End date placeholder text"/>
+
+    <TextView
+        android:id="@+id/txt_courses"
+        android:layout_below="@+id/data_endDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Courses in this Term:"/>
+
+    <EditText
         android:id="@+id/editText"
+        android:layout_width="wrap_content"
+        android:layout_height="200dp"
         android:gravity="top"
-        android:layout_alignParentTop="true"
+        android:layout_below="@+id/txt_courses"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
