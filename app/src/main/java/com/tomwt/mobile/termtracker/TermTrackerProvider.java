@@ -16,6 +16,7 @@ public class TermTrackerProvider extends ContentProvider {
     private static final String AUTHORITY = "com.tomwt.mobile.termtracker.termtrackerprovider";
     private static final String BASE_PATH = "tbl_notes";
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH );
+    public static final Uri CONTENT_URI_PATHLESS = Uri.parse("content://" + AUTHORITY);
 
     // Constant to identify the requested operation
     private static final int NOTES = 1; // give me the entire dataSet
@@ -65,8 +66,10 @@ public class TermTrackerProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        long id = termTrackerDB.insert(DBOpenHelper.TABLE_NOTES, null, values);
-        return Uri.parse(BASE_PATH + "/" + id);
+        // REFACTORED:: long id = termTrackerDB.insert(DBOpenHelper.TABLE_NOTES, null, values);
+        long id = termTrackerDB.insert(uri.getPathSegments().get(0).toString(), null, values); // BUGBUG:: have to use getPathSegments for getPath is returning a leading slash!!!
+        // REFACTORED:: return Uri.parse(BASE_PATH + "/" + id);
+        return Uri.parse(uri.getPath() + "/" + id); // BUGBUG:: be aware that uri.getPath returns a leading slash!!!  See above BUGBUG for resolution if this becomes an issue.
     }
 
     @Override

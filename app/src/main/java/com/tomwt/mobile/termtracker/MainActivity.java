@@ -27,7 +27,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // insertNote("New Note");
+//        insertTerm("Term1", "3/11/2017", "6/11/2017");
+//         insertNote("New Note");
 
         // build out the progress bar area of the GUI
         {
@@ -82,6 +83,16 @@ public class MainActivity extends AppCompatActivity {
     public void openManageCourses(View view) {
         Intent intent = new Intent(this, ManageCoursesActivity.class);
         startActivity(intent);
+    }
+
+    private void insertTerm(String title, String startDate, String endDate) {
+        ContentValues values = new ContentValues();
+        values.put(DBOpenHelper.TERMS_TITLE, title);
+        values.put(DBOpenHelper.TERMS_START, startDate);
+        values.put(DBOpenHelper.TERMS_END, endDate);
+        Uri termURI = getContentResolver().insert(Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_TERMS), values);
+        Log.d("MainActivity", "termURI: " + termURI.toString());
+        Log.d("MainActivity", "Inserted a term " + termURI.getLastPathSegment());
     }
 
     private void insertNote(String noteText) {
