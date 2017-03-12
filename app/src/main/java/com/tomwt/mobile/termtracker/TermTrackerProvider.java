@@ -80,7 +80,8 @@ public class TermTrackerProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        return termTrackerDB.update(DBOpenHelper.TABLE_NOTES, values, selection, selectionArgs);
+        // REFACTORED:: return termTrackerDB.update(DBOpenHelper.TABLE_NOTES, values, selection, selectionArgs);
+        return termTrackerDB.update(uri.getPathSegments().get(0).toString(), values, selection, selectionArgs); // BUGBUG:: have to use getPathSegments for getPath is returning a leading slash!!!
     }
 
     public Cursor getCurrentTermProgress(Context context) {

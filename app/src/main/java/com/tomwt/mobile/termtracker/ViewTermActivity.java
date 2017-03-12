@@ -55,7 +55,7 @@ public class ViewTermActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Term Information");
 
         editor = (EditText) findViewById(R.id.editText);
-        // REFACTORED ADDED:
+        // REFACTORED:: ADDED
         titleEditor = (EditText) findViewById(R.id.data_title);
         startEditor = (EditText) findViewById(R.id.data_startDate);
         endEditor = (EditText) findViewById(R.id.data_endDate);
@@ -77,7 +77,7 @@ public class ViewTermActivity extends AppCompatActivity {
             editor.setText(oldText);
             editor.requestFocus();
 
-            // REFACTORED ADDED:
+            // REFACTORED:: ADDED
             Uri termURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_TERMS);
             termsFilter = DBOpenHelper.TERMS_ID + "=" + uri.getLastPathSegment();
             Cursor termCursor = getContentResolver().query(termURI, DBOpenHelper.TERMS_ALL_COLUMNS, termsFilter, null, null);
@@ -94,6 +94,11 @@ public class ViewTermActivity extends AppCompatActivity {
     private void finishEditing() {
         String newText = editor.getText().toString().trim();
 
+        // REFACTORED:: ADDED
+        String titleTextNew = titleEditor.getText().toString().trim();
+        String startTextNew = startEditor.getText().toString().trim();
+        String endTextNew = endEditor.getText().toString().trim();
+
         switch (action) {
             case Intent.ACTION_INSERT:
                 if (newText.length() == 0) {
@@ -103,12 +108,14 @@ public class ViewTermActivity extends AppCompatActivity {
                 }
                 break;
             case Intent.ACTION_EDIT:
-                if (newText.length() == 0) {
+                if (newText.length() == 0 || titleTextNew.length() == 0 || startTextNew.length() == 0 || endTextNew.length() == 0) { // REFACTORED
 //                    deleteNote();
-                } else if (oldText.equals(newText)) {
+                } else if (oldText.equals(newText) && titleTextOld.equals(titleTextNew) && startTextOld.equals(startTextNew) && endTextOld.equals(endTextNew)) { // REFACTORED
                     setResult(RESULT_CANCELED);
                 } else {
                     updateNote(newText);
+                    // REFACTORED:: ADDED
+                    updateTerm(titleTextNew, startTextNew, endTextNew);
                 }
 
         }
@@ -120,6 +127,18 @@ public class ViewTermActivity extends AppCompatActivity {
         values.put(DBOpenHelper.NOTES_DETAILS, noteText);
         getContentResolver().update(TermTrackerProvider.CONTENT_URI, values, notesFilter, null);
         Toast.makeText(this, "NOTE UPDATED...", Toast.LENGTH_SHORT).show();
+        setResult(RESULT_OK);
+    }
+
+    // REFACTORED:: ADDED
+    private void updateTerm(String titleText, String startText, String endText) {
+        ContentValues values = new ContentValues();
+        values.put(DBOpenHelper.TERMS_TITLE, titleText);
+        values.put(DBOpenHelper.TERMS_START, startText);
+        values.put(DBOpenHelper.TERMS_END, endText);
+        Uri termURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_TERMS);
+        getContentResolver().update(termURI, values, termsFilter, null);
+        Toast.makeText(this, "TERM UPDATED...", Toast.LENGTH_SHORT).show();
         setResult(RESULT_OK);
     }
 
