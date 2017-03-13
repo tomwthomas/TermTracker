@@ -50,6 +50,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.tomwt.mobile.termtracker.ManagedTermsActivity" />
         </activity>
+        <activity
+            android:name=".ViewCourseActivity"
+            android:label="@string/title_activity_view_course"
+            android:parentActivityName=".ViewTermActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.tomwt.mobile.termtracker.ViewTermActivity" />
+        </activity>
     </application>
 
 </manifest>

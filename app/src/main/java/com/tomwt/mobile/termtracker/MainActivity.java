@@ -27,49 +27,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        insertTerm("Term2", "3/11/2017", "6/11/2017");
-//        insertTerm("Term3", "3/11/2017", "6/11/2017");
-//        insertTerm("Term4", "3/11/2017", "6/11/2017");
-//        insertTerm("Term5", "3/11/2017", "6/11/2017");
-//        insertTerm("Term6", "3/11/2017", "6/11/2017");
-//        insertTerm("Term7", "3/11/2017", "6/11/2017");
-//        insertTerm("Term8", "3/11/2017", "6/11/2017");
-//        insertTerm("Term9", "3/11/2017", "6/11/2017");
-//        insertTerm("Term10", "3/11/2017", "6/11/2017");
-//        insertTerm("Term11", "3/11/2017", "6/11/2017");
-//        insertTerm("Term12", "3/11/2017", "6/11/2017");
+
+
+
 //        insertTerm("Term13", "3/11/2017", "6/11/2017");
 
+//        insertCourse("Course 1", "Course details...", "3/15/2017", "4/1/2017", "Pending", "Bob Smith");
+
 //        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
-//        insertNote("New Note");
+
 
 
         // build out the progress bar area of the GUI
@@ -125,6 +91,19 @@ public class MainActivity extends AppCompatActivity {
     public void openManageCourses(View view) {
         Intent intent = new Intent(this, ManageCoursesActivity.class);
         startActivity(intent);
+    }
+
+    private void insertCourse(String title, String details, String startDate, String endDate, String status, String mentor) {
+        ContentValues values = new ContentValues();
+        values.put(DBOpenHelper.COURSES_TITLE, title);
+        values.put(DBOpenHelper.COURSES_DETAILS, details);
+        values.put(DBOpenHelper.COURSES_START, startDate);
+        values.put(DBOpenHelper.COURSES_END, endDate);
+        values.put(DBOpenHelper.COURSES_STATUS, status);
+        values.put(DBOpenHelper.COURSES_MENTOR, mentor);
+        Uri courseURI = getContentResolver().insert(Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_COURSES), values);
+        Log.d("MainActivity", "courseURI: " + courseURI.toString());
+        Log.d("MainActivity", "Inserted a course " + courseURI.getLastPathSegment());
     }
 
     private void insertTerm(String title, String startDate, String endDate) {

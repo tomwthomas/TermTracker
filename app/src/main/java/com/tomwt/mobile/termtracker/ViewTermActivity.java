@@ -10,16 +10,22 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
+import android.support.v4.widget.CursorAdapter;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Toast;
 
 public class ViewTermActivity extends AppCompatActivity {
+
+    private static final int EDITOR_REQUEST_CODE = 1001;
 
     private String action;
     private EditText editor;
@@ -67,7 +73,7 @@ public class ViewTermActivity extends AppCompatActivity {
 
         if (uri == null) {
             action = Intent.ACTION_INSERT;
-            setTitle("THIS IS A NEW TITLE...");
+            getSupportActionBar().setTitle("INTENT.INSERT (uri==null)...");
         } else {
             action = Intent.ACTION_EDIT;
             notesFilter = DBOpenHelper.NOTES_ID + "=" + uri.getLastPathSegment();
@@ -76,7 +82,7 @@ public class ViewTermActivity extends AppCompatActivity {
             cursor.moveToFirst();
             oldText = cursor.getString(cursor.getColumnIndex(DBOpenHelper.NOTES_DETAILS));
             editor.setText(oldText);
-            editor.requestFocus();
+//            editor.requestFocus();
 
             // REFACTORED:: ADDED
             Uri termURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_TERMS);
@@ -89,6 +95,38 @@ public class ViewTermActivity extends AppCompatActivity {
             titleEditor.setText(titleTextOld);
             startEditor.setText(startTextOld);
             endEditor.setText(endTextOld);
+
+            // build out the list of courses for this term and display them in the GUI
+            final Uri courseURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_COURSES);
+            Cursor courseCursor = getContentResolver().query(courseURI, DBOpenHelper.COURSES_ALL_COLUMNS, null, null, null);
+            String[] from = {DBOpenHelper.COURSES_TITLE};
+            int[] to = {android.R.id.text1};
+            CursorAdapter cursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, courseCursor, from, to, 0);
+
+            ListView list = (ListView) findViewById(android.R.id.list);
+            list.setAdapter(cursorAdapter);
+
+            list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Intent intent = new Intent(ViewTermActivity.this, ViewCourseActivity.class);
+                    Uri uri = Uri.parse(courseURI + "/" + id);
+                    Log.d("ViewTermActivity", "courseURI: " + uri.toString());
+                    intent.putExtra(TermTrackerProvider.CONTENT_ITEM_TYPE, uri);
+                    startActivityForResult(intent, EDITOR_REQUEST_CODE);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == EDITOR_REQUEST_CODE) {
+            if(resultCode == RESULT_OK) {
+                String returnedValue = data.getStringExtra("returnValue");
+                Toast.makeText(this, "value returned: " + returnedValue, Toast.LENGTH_LONG).show();
+            }
         }
     }
 
