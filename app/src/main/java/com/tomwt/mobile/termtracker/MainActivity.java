@@ -30,11 +30,11 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-//        insertTerm("Term13", "3/11/2017", "6/11/2017");
-
+//        insertTerm("Term 1", "3/11/2017", "6/11/2017");
+//
 //        insertCourse("Course 1", "Course details...", "3/15/2017", "4/1/2017", "Pending", "Bob Smith");
-
-//        insertNote("New Note");
+//
+//        insertNote("Note 1");
 
 
 
@@ -122,4 +122,5 @@ public class MainActivity extends AppCompatActivity {
         Uri notesURI = getContentResolver().insert(TermTrackerProvider.CONTENT_URI, values);
         Log.d("MainActivity", "Inserted a note " + notesURI.getLastPathSegment());
     }
+
 }

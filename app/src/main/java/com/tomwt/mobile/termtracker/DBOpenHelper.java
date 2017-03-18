@@ -26,6 +26,7 @@ public class DBOpenHelper extends SQLiteOpenHelper{
     // ASSESSMENTS TABLE
     public static final String TABLE_ASSESSMENTS = "tbl_assessments";
     public static final String ASSESSMENTS_ID = "_id";
+    public static final String ASSESSMENTS_COURSEID = "courseID";
     public static final String ASSESSMENTS_TYPE = "type";
     public static final String ASSESSMENTS_TITLE = "title";
     public static final String ASSESSMENTS_DETAILS = "details";
@@ -36,6 +37,7 @@ public class DBOpenHelper extends SQLiteOpenHelper{
     // COURSES TABLE
     public static final String TABLE_COURSES = "tbl_courses";
     public static final String COURSES_ID = "_id";
+    public static final String COURSES_TERMID = "termID";
     public static final String COURSES_TITLE = "title";
     public static final String COURSES_DETAILS = "details";
     public static final String COURSES_START = "startDate";
@@ -92,6 +94,7 @@ public class DBOpenHelper extends SQLiteOpenHelper{
     private static final String CREATE_TABLE_ASSESSMENTS =
             "CREATE TABLE " + TABLE_ASSESSMENTS + " (" +
                     ASSESSMENTS_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    ASSESSMENTS_COURSEID + " INTEGER, " +
                     ASSESSMENTS_TYPE + " INTEGER, " +
                     ASSESSMENTS_TITLE + " TEXT, " +
                     ASSESSMENTS_DETAILS + " TEXT, " +
@@ -103,6 +106,7 @@ public class DBOpenHelper extends SQLiteOpenHelper{
     private static final String CREATE_TABLE_COURSES =
             "CREATE TABLE " + TABLE_COURSES + " (" +
                     COURSES_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    COURSES_TERMID + " INTEGER, " +
                     COURSES_TITLE + " TEXT, " +
                     COURSES_DETAILS + " TEXT, " +
                     COURSES_START + " TEXT, " +
@@ -122,7 +126,7 @@ public class DBOpenHelper extends SQLiteOpenHelper{
                     NOTES_TIMESTAMP + " TEXT default CURRENT_TIMESTAMP" +
                     ")";
 
-    // SQL to creat terms table
+    // SQL to create terms table
     private static final String CREATE_TABLE_TERMS =
             "CREATE TABLE " + TABLE_TERMS + " (" +
                     TERMS_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +

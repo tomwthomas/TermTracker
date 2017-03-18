@@ -54,8 +54,11 @@ public class ViewTermActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+
+                Intent intent = new Intent(ViewTermActivity.this, ViewCourseActivity.class);
+                startActivityForResult(intent, EDITOR_REQUEST_CODE);
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -124,8 +127,31 @@ public class ViewTermActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == EDITOR_REQUEST_CODE) {
             if(resultCode == RESULT_OK) {
-                String returnedValue = data.getStringExtra("returnValue");
-                Toast.makeText(this, "value returned: " + returnedValue, Toast.LENGTH_LONG).show();
+//                String returnedValue = data.getStringExtra("returnValue");
+//                Toast.makeText(this, "value returned: " + returnedValue, Toast.LENGTH_LONG).show();
+
+                // build out the list of courses for this term and display them in the GUI
+                final Uri courseURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_COURSES);
+                Cursor courseCursor = getContentResolver().query(courseURI, DBOpenHelper.COURSES_ALL_COLUMNS, null, null, null);
+                String[] from = {DBOpenHelper.COURSES_TITLE};
+                int[] to = {android.R.id.text1};
+                CursorAdapter cursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, courseCursor, from, to, 0);
+
+                ListView list = (ListView) findViewById(android.R.id.list);
+                list.setAdapter(cursorAdapter);
+
+                list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Intent intent = new Intent(ViewTermActivity.this, ViewCourseActivity.class);
+                        Uri uri = Uri.parse(courseURI + "/" + id);
+                        Log.d("ViewTermActivity", "courseURI: " + uri.toString());
+                        intent.putExtra(TermTrackerProvider.CONTENT_ITEM_TYPE, uri);
+                        startActivityForResult(intent, EDITOR_REQUEST_CODE);
+                    }
+                });
+
+
             }
         }
     }
@@ -194,8 +220,8 @@ public class ViewTermActivity extends AppCompatActivity {
         values.put(DBOpenHelper.TERMS_START, startDate);
         values.put(DBOpenHelper.TERMS_END, endDate);
         Uri termURI = getContentResolver().insert(Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_TERMS), values);
-        Log.d("MainActivity", "termURI: " + termURI.toString());
-        Log.d("MainActivity", "Inserted a term " + termURI.getLastPathSegment());
+        Log.d("ViewTermActivity", "termURI: " + termURI.toString());
+        Log.d("ViewTermActivity", "Inserted a term " + termURI.getLastPathSegment());
     }
 
 
