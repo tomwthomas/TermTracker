@@ -68,6 +68,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.tomwt.mobile.termtracker.ViewCourseActivity" />
         </activity>
+        <activity
+            android:name=".ViewAssessmentAlertActivity"
+            android:label="@string/title_activity_view_assessment_alert"
+            android:parentActivityName=".ViewAssessmentActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.tomwt.mobile.termtracker.ViewAssessmentActivity" />
+        </activity>
     </application>
 
 </manifest>

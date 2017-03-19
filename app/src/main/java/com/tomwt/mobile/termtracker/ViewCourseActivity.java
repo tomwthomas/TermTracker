@@ -61,8 +61,11 @@ public class ViewCourseActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+
+                Intent intent = new Intent(ViewCourseActivity.this, ViewAssessmentActivity.class);
+                startActivityForResult(intent, EDITOR_REQUEST_CODE);
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -112,26 +115,26 @@ public class ViewCourseActivity extends AppCompatActivity {
             statusEditor.setText(statusTextOld);
             mentorEditor.setText(mentorTextOld);
 
-//            // build out the list of courses for this term and display them in the GUI
-//            final Uri courseURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_COURSES);
-//            Cursor courseCursor = getContentResolver().query(courseURI, DBOpenHelper.COURSES_ALL_COLUMNS, null, null, null);
-//            String[] from = {DBOpenHelper.COURSES_TITLE};
-//            int[] to = {android.R.id.text1};
-//            CursorAdapter cursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, courseCursor, from, to, 0);
-//
-//            ListView list = (ListView) findViewById(android.R.id.list);
-//            list.setAdapter(cursorAdapter);
-//
-//            list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//                @Override
-//                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                    Intent intent = new Intent(ViewTermActivity.this, ViewCourseActivity.class);
-//                    Uri uri = Uri.parse(courseURI + "/" + id);
-//                    Log.d("ViewTermActivity", "courseURI: " + uri.toString());
-//                    intent.putExtra(TermTrackerProvider.CONTENT_ITEM_TYPE, uri);
-//                    startActivityForResult(intent, EDITOR_REQUEST_CODE);
-//                }
-//            });
+            // build out the list of assessments for this course and display them in the GUI
+            final Uri assessmentsURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_ASSESSMENTS);
+            Cursor assessmentCursor = getContentResolver().query(assessmentsURI, DBOpenHelper.ASSESSMENTS_ALL_COLUMNS, null, null, null);
+            String[] from = {DBOpenHelper.ASSESSMENTS_TITLE};
+            int[] to = {android.R.id.text1};
+            CursorAdapter cursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, assessmentCursor, from, to, 0);
+
+            ListView list = (ListView) findViewById(android.R.id.list);
+            list.setAdapter(cursorAdapter);
+
+            list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Intent intent = new Intent(ViewCourseActivity.this, ViewAssessmentActivity.class);
+                    Uri uri = Uri.parse(assessmentsURI + "/" + id);
+                    Log.d("ViewCourseActivity", "assessmentURI: " + uri.toString());
+                    intent.putExtra(TermTrackerProvider.CONTENT_ITEM_TYPE, uri);
+                    startActivityForResult(intent, EDITOR_REQUEST_CODE);
+                }
+            });
         }
     }
 
