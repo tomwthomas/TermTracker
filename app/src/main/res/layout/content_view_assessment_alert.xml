@@ -13,4 +13,38 @@
     tools:context="com.tomwt.mobile.termtracker.ViewAssessmentAlertActivity"
     tools:showIn="@layout/activity_view_assessment_alert">
 
+    <LinearLayout
+        android:id="@+id/hiddenField"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:layout_width="0px"
+        android:layout_height="0px" />
+
+    <TextView
+        android:id="@+id/txt_alertText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Alert Message:"/>
+
+    <EditText
+        android:id="@+id/data_alertText"
+        android:layout_below="@id/txt_alertText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Alert message placeholder text"/>
+
+    <TextView
+        android:id="@+id/txt_alertDate"
+        android:layout_below="@+id/data_alertText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Date to send alert:"/>
+
+    <EditText
+        android:id="@+id/data_alertDate"
+        android:layout_below="@id/txt_alertDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Alert date placeholder text"/>
+
 </RelativeLayout>

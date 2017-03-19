@@ -13,6 +13,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
@@ -119,6 +121,22 @@ public class ViewAssessmentActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_assessments, menu);
+        return true;
+    }
+
+    private void addAlert() {
+        Toast.makeText(this, "ADD ALERT CALLED...", Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(ViewAssessmentActivity.this, ViewAssessmentAlertActivity.class);
+        startActivityForResult(intent, EDITOR_REQUEST_CODE);
+    }
+
+    private void addNote() {
+        Toast.makeText(this, "ADD NOTE CALLED...", Toast.LENGTH_LONG).show();
+    }
 
     private void finishEditing() {
 //        String newText = editor.getText().toString().trim();
@@ -191,6 +209,12 @@ public class ViewAssessmentActivity extends AppCompatActivity {
                 intent.putExtra("returnValue", "9999");
                 setResult(RESULT_OK, intent);
                 finish();
+                return true;
+            case R.id.menu_addAlert:
+                addAlert();
+                return true;
+            case R.id.menu_addNote:
+                addNote();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
