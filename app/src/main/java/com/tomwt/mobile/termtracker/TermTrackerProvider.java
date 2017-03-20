@@ -75,7 +75,8 @@ public class TermTrackerProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        return termTrackerDB.delete(DBOpenHelper.TABLE_NOTES, selection, selectionArgs);
+        // REFACTORED:: return termTrackerDB.delete(DBOpenHelper.TABLE_NOTES, selection, selectionArgs);
+        return termTrackerDB.delete(uri.getPathSegments().get(0).toString(), selection, selectionArgs);
     }
 
     @Override

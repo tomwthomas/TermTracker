@@ -31,6 +31,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.util.Date;
 import java.util.Locale;
 
 public class ViewAssessmentAlertActivity extends AppCompatActivity {
@@ -50,6 +51,7 @@ public class ViewAssessmentAlertActivity extends AppCompatActivity {
     private EditText alertDateEditor;
     private String alertMsgTextOld;
     private String alertDateTextOld;
+    private String currentAlertID; // TODO:  NEED TO REFACTOR THIS
 
     @TargetApi(Build.VERSION_CODES.N)
     @Override
@@ -93,6 +95,7 @@ public class ViewAssessmentAlertActivity extends AppCompatActivity {
             // REFACTORED:: ADDED
             Uri alertURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_ALERTS);
             alertsFilter = DBOpenHelper.ALERTS_ID + "=" + uri.getLastPathSegment();
+            currentAlertID = uri.getLastPathSegment(); // TODO::  NEED TO REFACTOR THIS!!!
             Cursor alertCursor = getContentResolver().query(alertURI, DBOpenHelper.ALERTS_ALL_COLUMNS, alertsFilter, null, null);
             alertCursor.moveToFirst();
             alertMsgTextOld = alertCursor.getString(alertCursor.getColumnIndex(DBOpenHelper.ALERTS_TEXT));
@@ -187,13 +190,15 @@ public class ViewAssessmentAlertActivity extends AppCompatActivity {
         return builder.build();
     }
 
-    private void removeNotification(int notificationID) {
-        Notification notification = buildNotification("message 2");
+    private void removeNotification(String msgText, int notificationID) {
+        Notification notification = buildNotification(msgText);
         Intent notificationIntent = new Intent(this, NotificationPublisher.class);
         notificationIntent.putExtra(NotificationPublisher.NOTIFICATION_ID, notificationID);
         notificationIntent.putExtra(NotificationPublisher.NOTIFICATION, notification);
         PendingIntent.getBroadcast(this, notificationID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT).cancel();
     }
+
+
 
 
 
@@ -210,8 +215,13 @@ public class ViewAssessmentAlertActivity extends AppCompatActivity {
 
     private void removeAlert() {
         Toast.makeText(this, "REMOVE ALERT CALLED...", Toast.LENGTH_LONG).show();
+        // this should build up the call to removeNotification based on the URI we currently have OR just move this call to there
+        removeNotification(alertMsgTextOld, Integer.parseInt(currentAlertID)); // TODO:  NEED TO REFACTOR THIS DO GLOBAL SEARCH!!
+        deleteAlert();
 //        Intent intent = new Intent(ViewAssessmentActivity.this, ViewAssessmentAlertActivity.class);
 //        startActivityForResult(intent, EDITOR_REQUEST_CODE);
+
+
     }
 
 
@@ -258,6 +268,7 @@ public class ViewAssessmentAlertActivity extends AppCompatActivity {
         getContentResolver().update(alertURI, values, alertsFilter, null);
         Toast.makeText(this, "ALERTS UPDATED...", Toast.LENGTH_LONG).show();
         setResult(RESULT_OK);
+        // TODO:  NEED TO REFACTOR THIS TO UPDATE ALERT MESSAGE IN NOTIFICATION
     }
 
     private void insertAlert(String alertMsg, String alertDate) {
@@ -267,6 +278,23 @@ public class ViewAssessmentAlertActivity extends AppCompatActivity {
         Uri alertURI = getContentResolver().insert(Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_ALERTS), values);
         Log.d("ViewAssessAlertActivity", "alertURI: " + alertURI.toString());
         Log.d("ViewAssessAlertActivity", "Inserted an alert " + alertURI.getLastPathSegment());
+
+        String myFormat = "MM/dd/yy";
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+        String targetAlertDate = alertDateEditor.getText().toString().trim();
+        Date date = new Date();
+        try {
+            date = sdf.parse(targetAlertDate);
+        }
+        catch (Exception e) { }
+        long dateInMillis = date.getTime(); // would pass in below where is currently set to 60000 in order to alert on a target date
+        scheduleNotification(buildNotification(alertMsgEditor.getText().toString().trim()), 60000, Integer.parseInt(alertURI.getLastPathSegment()));
+    }
+
+    private void deleteAlert() {
+        Uri alertURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_ALERTS);
+        getContentResolver().delete(alertURI, alertsFilter, null);
+        setResult(RESULT_OK);
     }
 
     // all three of the below methods are required to ensure full capture of the user leaving this activity
@@ -283,6 +311,9 @@ public class ViewAssessmentAlertActivity extends AppCompatActivity {
                 return true;
             case R.id.menu_removeAlert:
                 removeAlert();
+                onBackPressed();
+                setResult(RESULT_OK);
+                finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
