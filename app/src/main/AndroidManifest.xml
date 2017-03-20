@@ -77,6 +77,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.tomwt.mobile.termtracker.ViewAssessmentActivity" />
         </activity>
+        <receiver android:name=".NotificationPublisher" />
     </application>
 
 </manifest>

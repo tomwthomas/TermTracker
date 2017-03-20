@@ -14,7 +14,6 @@
     tools:showIn="@layout/activity_view_assessment_alert">
 
     <LinearLayout
-        android:id="@+id/hiddenField"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:layout_width="0px"
