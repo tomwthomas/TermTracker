@@ -6,10 +6,13 @@ import android.app.DatePickerDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
+import android.net.Uri;
 import android.os.Build;
 import android.os.SystemClock;
 import android.os.Bundle;
@@ -17,16 +20,36 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.util.Locale;
 
 public class ViewAssessmentAlertActivity extends AppCompatActivity {
 
     final Calendar alertCal = Calendar.getInstance();
+
+    private static final int EDITOR_REQUEST_CODE = 1001;
+
+    private String action;
+    private EditText editor;
+    private String notesFilter;
+    private String oldText;
+
+    // REFACTORED::  ADDED
+    private String alertsFilter;
+    private EditText alertMsgEditor;
+    private EditText alertDateEditor;
+    private String alertMsgTextOld;
+    private String alertDateTextOld;
 
     @TargetApi(Build.VERSION_CODES.N)
     @Override
@@ -45,7 +68,59 @@ public class ViewAssessmentAlertActivity extends AppCompatActivity {
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("Assessment Alert Information");
+        getSupportActionBar().setTitle("Assessment Alert Info");
+
+        alertMsgEditor = (EditText) findViewById(R.id.data_alertText);
+        alertDateEditor = (EditText) findViewById(R.id.data_alertDate);
+
+        Intent intent = getIntent();
+
+        Uri uri = intent.getParcelableExtra(TermTrackerProvider.CONTENT_ITEM_TYPE);
+
+        if (uri == null) {
+            action = Intent.ACTION_INSERT;
+            getSupportActionBar().setTitle("INTENT.INSERT (uri==null)...");
+        } else {
+            action = Intent.ACTION_EDIT;
+//            notesFilter = DBOpenHelper.NOTES_ID + "=" + uri.getLastPathSegment();
+//
+//            Cursor cursor = getContentResolver().query(uri, DBOpenHelper.NOTES_ALL_COLUMNS, notesFilter, null, null);
+//            cursor.moveToFirst();
+//            oldText = cursor.getString(cursor.getColumnIndex(DBOpenHelper.NOTES_DETAILS));
+//            editor.setText(oldText);
+//            editor.requestFocus();
+
+            // REFACTORED:: ADDED
+            Uri alertURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_ALERTS);
+            alertsFilter = DBOpenHelper.ALERTS_ID + "=" + uri.getLastPathSegment();
+            Cursor alertCursor = getContentResolver().query(alertURI, DBOpenHelper.ALERTS_ALL_COLUMNS, alertsFilter, null, null);
+            alertCursor.moveToFirst();
+            alertMsgTextOld = alertCursor.getString(alertCursor.getColumnIndex(DBOpenHelper.ALERTS_TEXT));
+            alertDateTextOld = alertCursor.getString(alertCursor.getColumnIndex(DBOpenHelper.ALERTS_DATE));
+            alertMsgEditor.setText(alertMsgTextOld);
+            alertDateEditor.setText(alertDateTextOld);
+
+//            // build out the list of courses for this term and display them in the GUI
+//            final Uri courseURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_COURSES);
+//            Cursor courseCursor = getContentResolver().query(courseURI, DBOpenHelper.COURSES_ALL_COLUMNS, null, null, null);
+//            String[] from = {DBOpenHelper.COURSES_TITLE};
+//            int[] to = {android.R.id.text1};
+//            CursorAdapter cursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, courseCursor, from, to, 0);
+//
+//            ListView list = (ListView) findViewById(android.R.id.list);
+//            list.setAdapter(cursorAdapter);
+//
+//            list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//                @Override
+//                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                    Intent intent = new Intent(ViewTermActivity.this, ViewCourseActivity.class);
+//                    Uri uri = Uri.parse(courseURI + "/" + id);
+//                    Log.d("ViewTermActivity", "courseURI: " + uri.toString());
+//                    intent.putExtra(TermTrackerProvider.CONTENT_ITEM_TYPE, uri);
+//                    startActivityForResult(intent, EDITOR_REQUEST_CODE);
+//                }
+//            });
+        }
 
 
 
@@ -59,8 +134,8 @@ public class ViewAssessmentAlertActivity extends AppCompatActivity {
             }
         };
 
-        EditText alertDate = (EditText) findViewById(R.id.data_alertDate);
-        alertDate.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        // EditText alertDate = (EditText) findViewById(R.id.data_alertDate);
+        alertDateEditor.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if(hasFocus) {
@@ -85,10 +160,10 @@ public class ViewAssessmentAlertActivity extends AppCompatActivity {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
-        scheduleNotification(buildNotification("message 1"), 1000, 1);
-        scheduleNotification(buildNotification("message 2"), 5000, 2);
-        removeNotification(2);
-        scheduleNotification(buildNotification("message 3"), 10000, 3);
+//        scheduleNotification(buildNotification("message 1"), 1000, 1);
+//        scheduleNotification(buildNotification("message 2"), 5000, 2);
+//        removeNotification(2);
+//        scheduleNotification(buildNotification("message 3"), 10000, 3);
     }
 
     private void scheduleNotification(Notification notification, int delay, int notificationID) {
@@ -119,4 +194,115 @@ public class ViewAssessmentAlertActivity extends AppCompatActivity {
         notificationIntent.putExtra(NotificationPublisher.NOTIFICATION, notification);
         PendingIntent.getBroadcast(this, notificationID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT).cancel();
     }
+
+
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if(action != Intent.ACTION_INSERT) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.menu_alerts, menu);
+        }
+
+        return true;
+    }
+
+    private void removeAlert() {
+        Toast.makeText(this, "REMOVE ALERT CALLED...", Toast.LENGTH_LONG).show();
+//        Intent intent = new Intent(ViewAssessmentActivity.this, ViewAssessmentAlertActivity.class);
+//        startActivityForResult(intent, EDITOR_REQUEST_CODE);
+    }
+
+
+    private void finishEditing() {
+//        String newText = editor.getText().toString().trim();
+//
+        // REFACTORED:: ADDED
+        String alertMsgTextNew = alertMsgEditor.getText().toString().trim();
+        String alertDateTextNew = alertDateEditor.getText().toString().trim();
+
+        switch (action) {
+            case Intent.ACTION_INSERT:
+                if (alertMsgTextNew.length() == 0 || alertDateTextNew.length() == 0) {
+                    setResult(RESULT_CANCELED);
+                } else {
+                    insertAlert(alertMsgTextNew, alertDateTextNew);
+                }
+                break;
+            case Intent.ACTION_EDIT:
+                if (alertMsgTextNew.length() == 0 || alertDateTextNew.length() == 0) { // REFACTORED
+//                    deleteNote();
+                } else if (alertMsgTextOld.equals(alertMsgTextNew) && alertDateTextOld.equals(alertDateTextNew)) { // REFACTORED
+                    setResult(RESULT_CANCELED);
+                } else {
+//                    updateNote(newText);
+                    // REFACTORED:: ADDED
+                    updateAlert(alertMsgTextNew, alertDateTextNew);
+                }
+
+        }
+
+        Intent intent = new Intent();
+        intent.putExtra("returnValue", "9999");
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    // REFACTORED:: ADDED
+    private void updateAlert(String alertMsgText, String alertDateText) {
+        ContentValues values = new ContentValues();
+        values.put(DBOpenHelper.ALERTS_TEXT, alertMsgText);
+        values.put(DBOpenHelper.ALERTS_DATE, alertDateText);
+        Uri alertURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_ALERTS);
+        getContentResolver().update(alertURI, values, alertsFilter, null);
+        Toast.makeText(this, "ALERTS UPDATED...", Toast.LENGTH_LONG).show();
+        setResult(RESULT_OK);
+    }
+
+    private void insertAlert(String alertMsg, String alertDate) {
+        ContentValues values = new ContentValues();
+        values.put(DBOpenHelper.ALERTS_TEXT, alertMsg);
+        values.put(DBOpenHelper.ALERTS_DATE, alertDate);
+        Uri alertURI = getContentResolver().insert(Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_ALERTS), values);
+        Log.d("ViewAssessAlertActivity", "alertURI: " + alertURI.toString());
+        Log.d("ViewAssessAlertActivity", "Inserted an alert " + alertURI.getLastPathSegment());
+    }
+
+    // all three of the below methods are required to ensure full capture of the user leaving this activity
+    @Override
+    public boolean onOptionsItemSelected (MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                // NavUtils.navigateUpFromSameTask(this);
+                Intent intent = new Intent();
+                intent.putExtra("returnValue", "9999");
+                setResult(RESULT_OK, intent);
+                finish();
+                return true;
+            case R.id.menu_removeAlert:
+                removeAlert();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent objEvent) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            onBackPressed();
+            return true;
+        }
+        return super.onKeyUp(keyCode, objEvent);
+    }
+
+    @Override
+    public void onBackPressed() {
+        finishEditing();
+    }
+
+
+
 }

@@ -17,7 +17,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.CursorAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
 public class ViewAssessmentActivity extends AppCompatActivity {
@@ -98,33 +102,36 @@ public class ViewAssessmentActivity extends AppCompatActivity {
             typeEditor.setText(typeTextOld);
             statusEditor.setText(statusTextOld);
 
-//            // build out the list of courses for this term and display them in the GUI
-//            final Uri courseURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_COURSES);
-//            Cursor courseCursor = getContentResolver().query(courseURI, DBOpenHelper.COURSES_ALL_COLUMNS, null, null, null);
-//            String[] from = {DBOpenHelper.COURSES_TITLE};
-//            int[] to = {android.R.id.text1};
-//            CursorAdapter cursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, courseCursor, from, to, 0);
-//
-//            ListView list = (ListView) findViewById(android.R.id.list);
-//            list.setAdapter(cursorAdapter);
-//
-//            list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//                @Override
-//                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                    Intent intent = new Intent(ViewTermActivity.this, ViewCourseActivity.class);
-//                    Uri uri = Uri.parse(courseURI + "/" + id);
-//                    Log.d("ViewTermActivity", "courseURI: " + uri.toString());
-//                    intent.putExtra(TermTrackerProvider.CONTENT_ITEM_TYPE, uri);
-//                    startActivityForResult(intent, EDITOR_REQUEST_CODE);
-//                }
-//            });
+            // build out the list of alerts for this assessment and display them in the GUI
+            final Uri alertURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_ALERTS);
+            Cursor alertCursor = getContentResolver().query(alertURI, DBOpenHelper.ALERTS_ALL_COLUMNS, null, null, null);
+            String[] from = {DBOpenHelper.ALERTS_DATE};
+            int[] to = {android.R.id.text1};
+            CursorAdapter cursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, alertCursor, from, to, 0);
+
+            ListView list = (ListView) findViewById(android.R.id.list);
+            list.setAdapter(cursorAdapter);
+
+            list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Intent intent = new Intent(ViewAssessmentActivity.this, ViewAssessmentAlertActivity.class);
+                    Uri uri = Uri.parse(alertURI + "/" + id);
+                    Log.d("ViewAssessAlertActivity", "alertURI: " + uri.toString());
+                    intent.putExtra(TermTrackerProvider.CONTENT_ITEM_TYPE, uri);
+                    startActivityForResult(intent, EDITOR_REQUEST_CODE);
+                }
+            });
         }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_assessments, menu);
+        if(action != Intent.ACTION_INSERT) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.menu_assessments, menu);
+        }
+
         return true;
     }
 
