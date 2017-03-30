@@ -287,7 +287,9 @@ public class ViewAssessmentAlertActivity extends AppCompatActivity {
             date = sdf.parse(targetAlertDate);
         }
         catch (Exception e) { }
-        long dateInMillis = date.getTime(); // would pass in below where is currently set to 60000 in order to alert on a target date
+        long targetDateInMillis = date.getTime();
+        long nowInMillis = SystemClock.elapsedRealtime();
+        long delay = targetDateInMillis - nowInMillis;  // TODO:  would pass in below where is currently set to 60000 in order to alert on a target date
         scheduleNotification(buildNotification(alertMsgEditor.getText().toString().trim()), 60000, Integer.parseInt(alertURI.getLastPathSegment()));
     }
 

@@ -143,6 +143,8 @@ public class ViewAssessmentActivity extends AppCompatActivity {
 
     private void addNote() {
         Toast.makeText(this, "ADD NOTE CALLED...", Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(ViewAssessmentActivity.this, ViewNoteActivity.class);
+        startActivityForResult(intent, EDITOR_REQUEST_CODE);
     }
 
     private void finishEditing() {

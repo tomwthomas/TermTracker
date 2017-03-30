@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void openManageCourses(View view) {
         // Intent intent = new Intent(this, ManageCoursesActivity.class);
-        Intent intent = new Intent(this, ViewAssessmentAlertActivity.class);
+        Intent intent = new Intent(this, ViewNoteActivity.class);
         startActivity(intent);
     }
 
