@@ -1,8 +1,10 @@
 package com.tomwt.mobile.termtracker;
 
 import android.Manifest;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,9 +17,18 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CursorAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,10 +37,21 @@ import java.util.Date;
 
 public class ViewNoteActivity extends AppCompatActivity {
 
+    private static final int EDITOR_REQUEST_CODE = 1001;
+
+    private String action;
+    private EditText noteEditor;
+    private String notesFilter;
+    private String noteTextOld;
+    private String imgTextOld;
+    private String imgTextNew;
 
     private Button btn_takePhoto;
     private ImageView imgview_takePhoto;
     private Uri note_img_file;
+
+    private String PID;
+    private int parentType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +79,42 @@ public class ViewNoteActivity extends AppCompatActivity {
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("Note Information");
+
+        noteEditor = (EditText) findViewById(R.id.data_title);
+
+        Intent intent = getIntent();
+
+        Uri uri = intent.getParcelableExtra(TermTrackerProvider.CONTENT_ITEM_TYPE);
+        PID = uri.getLastPathSegment();
+//        String parentType = intent.getParcelableExtra(TermTrackerProvider.CONTENT_PARENT_TYPE);
+        parentType = intent.getIntExtra(TermTrackerProvider.CONTENT_PARENT_TYPE, 0);
+        int noteCount;
+        TermTrackerProvider TTP = new TermTrackerProvider();
+        Cursor cursor = TTP.getAssessmentNoteCount(ViewNoteActivity.this, PID, String.valueOf(parentType));
+        cursor.moveToFirst();
+        noteCount = Integer.parseInt(cursor.getString(0));
+        cursor.close();
+
+        if (noteCount == 0) {
+            action = Intent.ACTION_INSERT;
+            getSupportActionBar().setTitle("INTENT.INSERT (uri==null)...");
+        } else {
+            action = Intent.ACTION_EDIT;
+
+            Uri noteURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_NOTES);
+            notesFilter = DBOpenHelper.NOTES_ID + "=" + uri.getLastPathSegment();
+            Cursor noteCursor = getContentResolver().query(noteURI, DBOpenHelper.NOTES_ALL_COLUMNS, notesFilter, null, null);
+            noteCursor.moveToFirst();
+            noteTextOld = noteCursor.getString(noteCursor.getColumnIndex(DBOpenHelper.NOTES_DETAILS));
+            imgTextOld = noteCursor.getString(noteCursor.getColumnIndex(DBOpenHelper.NOTES_IMG));
+            imgTextNew = imgTextOld;
+            noteEditor.setText(noteTextOld);
+            if (imgTextOld != null)
+                imgview_takePhoto.setImageURI(Uri.parse(imgTextOld));
+
+        }
+
     }
 
     @Override
@@ -76,25 +134,16 @@ public class ViewNoteActivity extends AppCompatActivity {
 //        intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 //        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-        startActivityForResult(intent, 100);
+        startActivityForResult(intent, REQUEST_TAKE_PHOTO);
     }
-
-    // below is for the dispatchTakePictureIntent path that is not being called by the button currently
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
-//            Bundle extras = data.getExtras();
-//            Bitmap imageBitmap = (Bitmap) extras.get("data");
-//            imgview_takePhoto.setImageBitmap(imageBitmap);
-//        }
-//    }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 100) {
+        if (requestCode == REQUEST_TAKE_PHOTO) {
             if (resultCode == RESULT_OK) {
                 imgview_takePhoto.setImageURI(note_img_file);
+//                imgview_takePhoto.setImageURI(Uri.parse("content://com.tomwt.mobile.termtracker.fileprovider/my_images/note_20170330_003535.jpg")); // COULD pull this from DB if we store it on creation
+                imgTextNew = note_img_file.toString();
             }
         }
     }
@@ -116,7 +165,15 @@ public class ViewNoteActivity extends AppCompatActivity {
 
 
 
-
+    // below is for the dispatchTakePictureIntent path that is not being called by the button currently
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
+//            Bundle extras = data.getExtras();
+//            Bitmap imageBitmap = (Bitmap) extras.get("data");
+//            imgview_takePhoto.setImageBitmap(imageBitmap);
+//        }
+//    }
 
     static final int REQUEST_TAKE_PHOTO = 1;
 
@@ -159,6 +216,100 @@ public class ViewNoteActivity extends AppCompatActivity {
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
+    }
+
+
+
+    private void finishEditing() {
+//        String newText = editor.getText().toString().trim();
+//
+        // REFACTORED:: ADDED
+        String noteTextNew = noteEditor.getText().toString().trim();
+
+        switch (action) {
+            case Intent.ACTION_INSERT:
+                if (noteTextNew.length() == 0) {
+                    setResult(RESULT_CANCELED);
+                } else {
+                    insertNote(noteTextNew, imgTextNew, PID, parentType);
+                }
+                break;
+            case Intent.ACTION_EDIT: //
+                if (noteTextNew.length() == 0) { // REFACTORED
+//                    deleteNote();
+                } else if (noteTextOld.equals(noteTextNew) && imgTextOld != null && imgTextOld.equals(imgTextNew)) { // REFACTORED
+                    setResult(RESULT_CANCELED);
+                } else {
+                    updateNote(noteTextNew, imgTextNew, PID, parentType);
+                }
+
+        }
+
+        Intent intent = new Intent();
+        intent.putExtra("returnValue", "9999");
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    // REFACTORED:: ADDED
+    private void updateNote(String noteText, String imgPath, String currentPID, int currentParentType) {
+        ContentValues values = new ContentValues();
+        values.put(DBOpenHelper.NOTES_DETAILS, noteText);
+        values.put(DBOpenHelper.NOTES_IMG, imgPath);
+        values.put(DBOpenHelper.NOTES_PID, currentPID);
+        values.put(DBOpenHelper.NOTES_TYPE, currentParentType);
+        Uri noteURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_NOTES);
+        getContentResolver().update(noteURI, values, notesFilter, null);
+        Toast.makeText(this, "NOTE UPDATED...", Toast.LENGTH_LONG).show();
+        setResult(RESULT_OK);
+    }
+
+    private void insertNote(String noteText, String imgPath, String currentPID, int currentParentType) {
+        ContentValues values = new ContentValues();
+        values.put(DBOpenHelper.NOTES_DETAILS, noteText);
+        values.put(DBOpenHelper.NOTES_IMG, imgPath);
+        values.put(DBOpenHelper.NOTES_PID, currentPID);
+        values.put(DBOpenHelper.NOTES_TYPE, currentParentType);
+        Uri noteURI = getContentResolver().insert(Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_NOTES), values);
+        Log.d("ViewNoteActivity", "noteURI: " + noteURI.toString());
+        Log.d("ViewNoteActivity", "Inserted a note " + noteURI.getLastPathSegment());
+    }
+
+    // all three of the below methods are required to ensure full capture of the user leaving this activity
+    @Override
+    public boolean onOptionsItemSelected (MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                // NavUtils.navigateUpFromSameTask(this);
+                Intent intent = new Intent();
+                intent.putExtra("returnValue", "9999");
+                setResult(RESULT_OK, intent);
+                finish();
+                return true;
+            case R.id.menu_addAlert:
+//                addAlert();
+                return true;
+            case R.id.menu_addNote:
+//                addNote();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent objEvent) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            onBackPressed();
+            return true;
+        }
+        return super.onKeyUp(keyCode, objEvent);
+    }
+
+    @Override
+    public void onBackPressed() {
+        finishEditing();
     }
 
 }

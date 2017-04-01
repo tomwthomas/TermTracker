@@ -25,6 +25,10 @@ public class TermTrackerProvider extends ContentProvider {
     private static final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
     public static final String CONTENT_ITEM_TYPE = "Note";
+    public static final String CONTENT_PARENT_TYPE = "ParentType";
+
+    public static final int TYPE_ASSESSMENT = 1;
+    public static final int TYPE_COURSE = 2;
 
     static {
         uriMatcher.addURI(AUTHORITY, BASE_PATH, NOTES);
@@ -87,6 +91,13 @@ public class TermTrackerProvider extends ContentProvider {
 
     public Cursor getCurrentTermProgress(Context context) {
         String sql = "select " + DBOpenHelper.NOTES_ID + " from " + DBOpenHelper.TABLE_NOTES;
+        String[] selectionArgs = {};
+
+        return rawQuery(context, sql, selectionArgs);
+    }
+
+    public Cursor getAssessmentNoteCount(Context context, String PID, String ParentType) {
+        String sql = "select count(*) from " + DBOpenHelper.TABLE_NOTES + " where parentID=" + PID + " and parentType=" + ParentType;
         String[] selectionArgs = {};
 
         return rawQuery(context, sql, selectionArgs);

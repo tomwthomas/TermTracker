@@ -44,6 +44,9 @@ public class ViewAssessmentActivity extends AppCompatActivity {
     private String typeTextOld;
     private String statusTextOld;
 
+    private String currentID;
+
+
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
@@ -90,7 +93,8 @@ public class ViewAssessmentActivity extends AppCompatActivity {
 
             // REFACTORED:: ADDED
             Uri assessmentURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_ASSESSMENTS);
-            assessmentsFilter = DBOpenHelper.ASSESSMENTS_ID + "=" + uri.getLastPathSegment();
+            currentID = uri.getLastPathSegment();
+            assessmentsFilter = DBOpenHelper.ASSESSMENTS_ID + "=" + currentID;
             Cursor assessmentCursor = getContentResolver().query(assessmentURI, DBOpenHelper.ASSESSMENTS_ALL_COLUMNS, assessmentsFilter, null, null);
             assessmentCursor.moveToFirst();
             titleTextOld = assessmentCursor.getString(assessmentCursor.getColumnIndex(DBOpenHelper.ASSESSMENTS_TITLE));
@@ -122,6 +126,7 @@ public class ViewAssessmentActivity extends AppCompatActivity {
                     startActivityForResult(intent, EDITOR_REQUEST_CODE);
                 }
             });
+
         }
     }
 
@@ -138,12 +143,20 @@ public class ViewAssessmentActivity extends AppCompatActivity {
     private void addAlert() {
         Toast.makeText(this, "ADD ALERT CALLED...", Toast.LENGTH_LONG).show();
         Intent intent = new Intent(ViewAssessmentActivity.this, ViewAssessmentAlertActivity.class);
+
         startActivityForResult(intent, EDITOR_REQUEST_CODE);
     }
 
     private void addNote() {
         Toast.makeText(this, "ADD NOTE CALLED...", Toast.LENGTH_LONG).show();
         Intent intent = new Intent(ViewAssessmentActivity.this, ViewNoteActivity.class);
+
+        // build a URI that refers to the specific note we want to edit
+        Uri notesURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_NOTES);
+        notesURI = Uri.parse(notesURI + "/" + currentID);
+        intent.putExtra(TermTrackerProvider.CONTENT_ITEM_TYPE, notesURI);
+        intent.putExtra(TermTrackerProvider.CONTENT_PARENT_TYPE, TermTrackerProvider.TYPE_ASSESSMENT);
+
         startActivityForResult(intent, EDITOR_REQUEST_CODE);
     }
 
