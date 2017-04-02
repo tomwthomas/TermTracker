@@ -91,8 +91,15 @@ public class TermTrackerProvider extends ContentProvider {
         return termTrackerDB.update(uri.getPathSegments().get(0).toString(), values, selection, selectionArgs); // BUGBUG:: have to use getPathSegments for getPath is returning a leading slash!!!
     }
 
-    public Cursor getCurrentTermProgress(Context context) {
-        String sql = "select " + DBOpenHelper.NOTES_ID + " from " + DBOpenHelper.TABLE_NOTES;
+    public Cursor getCountClosedTerms(Context context) {
+        String sql = "select count(*) from " + DBOpenHelper.TABLE_TERMS + " where " + DBOpenHelper.TERMS_END + " <= date('now')";
+        String[] selectionArgs = {};
+
+        return rawQuery(context, sql, selectionArgs);
+    }
+
+    public Cursor getCountTotalTerms(Context context) {
+        String sql = "select count(*) from " + DBOpenHelper.TABLE_TERMS;
         String[] selectionArgs = {};
 
         return rawQuery(context, sql, selectionArgs);

@@ -1,9 +1,13 @@
 package com.tomwt.mobile.termtracker;
 
 import android.annotation.TargetApi;
+import android.app.DatePickerDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.icu.text.SimpleDateFormat;
+import android.icu.util.Calendar;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,10 +23,14 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import java.util.Locale;
 
 public class ViewCourseActivity extends AppCompatActivity {
 
@@ -50,6 +58,8 @@ public class ViewCourseActivity extends AppCompatActivity {
 
     private int currentCourseID;
     private int PID;
+
+    final Calendar alertCal = Calendar.getInstance();
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
@@ -148,6 +158,67 @@ public class ViewCourseActivity extends AppCompatActivity {
                 }
             });
         }
+
+
+        final DatePickerDialog.OnDateSetListener datePicker = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                alertCal.set(Calendar.YEAR, year);
+                alertCal.set(Calendar.MONTH, monthOfYear);
+                alertCal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                updateLabel(startEditor);
+            }
+        };
+
+        final DatePickerDialog.OnDateSetListener datePickerEnd = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                alertCal.set(Calendar.YEAR, year);
+                alertCal.set(Calendar.MONTH, monthOfYear);
+                alertCal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                updateLabel(endEditor);
+            }
+        };
+
+        startEditor.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(hasFocus) {
+                    new DatePickerDialog(ViewCourseActivity.this, datePicker, alertCal.get(Calendar.YEAR), alertCal.get(Calendar.MONTH), alertCal.get(Calendar.DAY_OF_MONTH)).show();
+                }
+                else {
+                    // add lost focus here if appropriate
+                }
+            }
+        });
+
+        endEditor.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(hasFocus) {
+                    new DatePickerDialog(ViewCourseActivity.this, datePickerEnd, alertCal.get(Calendar.YEAR), alertCal.get(Calendar.MONTH), alertCal.get(Calendar.DAY_OF_MONTH)).show();
+                }
+                else {
+                    // add lost focus here if appropriate
+                }
+            }
+        });
+
+
+    }
+
+    private void updateLabel(EditText toUpdate) {
+//        String myFormat = "MM/dd/yy";
+        String myFormat = "yyyy-MM-dd";
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+
+//        EditText alertDate = (EditText) findViewById(R.id.data_alertDate);
+        toUpdate.setText(sdf.format(alertCal.getTime()));
+        toUpdate.setCursorVisible(false);
+        View view = this.getCurrentFocus();
+        view.clearFocus();
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     @Override

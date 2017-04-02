@@ -4,7 +4,7 @@ import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.Notification;
-//import android.app.NotificationManager;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
@@ -161,7 +161,8 @@ public class ViewAssessmentAlertActivity extends AppCompatActivity {
     }
 
     private void updateLabel() {
-        String myFormat = "MM/dd/yy";
+//        String myFormat = "MM/dd/yy";
+        String myFormat = "yyyy-MM-dd";
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
 
         EditText alertDate = (EditText) findViewById(R.id.data_alertDate);
