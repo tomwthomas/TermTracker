@@ -106,7 +106,7 @@ public class ViewCourseActivity extends AppCompatActivity {
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.course_status_array, android.R.layout.simple_spinner_dropdown_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         statusSpinner.setAdapter(adapter);
-        addSpinnerListener();
+        statusSpinner.setOnItemSelectedListener(new SpinnerActivity());
 
 //        int currentPosition = spinner.getSelectedItemPosition();
 //        spinner.setSelection(2);
@@ -227,12 +227,6 @@ public class ViewCourseActivity extends AppCompatActivity {
         });
 
 
-    }
-
-
-    public void addSpinnerListener() {
-        Spinner spinner = (Spinner) findViewById(R.id.statusSpinner);
-        spinner.setOnItemSelectedListener(new SpinnerActivity());
     }
 
     private void updateLabel(EditText toUpdate) {

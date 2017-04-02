@@ -18,10 +18,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 public class ViewAssessmentActivity extends AppCompatActivity {
@@ -37,12 +39,16 @@ public class ViewAssessmentActivity extends AppCompatActivity {
     private String assessmentsFilter;
     private EditText titleEditor;
     private EditText detailsEditor;
-    private EditText typeEditor;
-    private EditText statusEditor;
+//    private EditText typeEditor;
+    private Spinner typeSpinner;
+//    private EditText statusEditor;
+    private Spinner statusSpinner;
     private String titleTextOld;
     private String detailsTextOld;
-    private String typeTextOld;
-    private String statusTextOld;
+//    private String typeTextOld;
+    private int typeSpinnerOld;
+//    private String statusTextOld;
+    private int statusSpinnerOld;
 
     private int currentAssessmentID;
     private int PID;
@@ -72,8 +78,20 @@ public class ViewAssessmentActivity extends AppCompatActivity {
         // REFACTORED:: ADDED
         titleEditor = (EditText) findViewById(R.id.data_title);
         detailsEditor = (EditText) findViewById(R.id.data_details);
-        typeEditor = (EditText) findViewById(R.id.data_type);
-        statusEditor = (EditText) findViewById(R.id.data_status);
+//        typeEditor = (EditText) findViewById(R.id.data_type);
+        typeSpinner = (Spinner) findViewById(R.id.typeSpinner);
+//        statusEditor = (EditText) findViewById(R.id.data_status);
+        statusSpinner = (Spinner) findViewById(R.id.statusSpinner);
+
+        ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(this, R.array.assessments_type_array, android.R.layout.simple_spinner_dropdown_item);
+        typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        typeSpinner.setAdapter(typeAdapter);
+        typeSpinner.setOnItemSelectedListener(new SpinnerActivity());
+
+        ArrayAdapter<CharSequence> statusAdapter = ArrayAdapter.createFromResource(this, R.array.assessments_status_array, android.R.layout.simple_spinner_dropdown_item);
+        statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        statusSpinner.setAdapter(statusAdapter);
+        statusSpinner.setOnItemSelectedListener(new SpinnerActivity());
 
         Intent intent = getIntent();
 
@@ -102,12 +120,18 @@ public class ViewAssessmentActivity extends AppCompatActivity {
             assessmentCursor.moveToFirst();
             titleTextOld = assessmentCursor.getString(assessmentCursor.getColumnIndex(DBOpenHelper.ASSESSMENTS_TITLE));
             detailsTextOld = assessmentCursor.getString(assessmentCursor.getColumnIndex(DBOpenHelper.ASSESSMENTS_DETAILS));
-            typeTextOld = assessmentCursor.getString(assessmentCursor.getColumnIndex(DBOpenHelper.ASSESSMENTS_TYPE));
-            statusTextOld = assessmentCursor.getString(assessmentCursor.getColumnIndex(DBOpenHelper.ASSESSMENTS_STATUS));
+//            typeTextOld = assessmentCursor.getString(assessmentCursor.getColumnIndex(DBOpenHelper.ASSESSMENTS_TYPE));
+            typeSpinnerOld = Integer.parseInt(assessmentCursor.getString(assessmentCursor.getColumnIndex(DBOpenHelper.ASSESSMENTS_TYPE)));
+//            typeSpinnerOld = 1;  // TODO:  refactor this once code has been migrated to spinner instead of EditText
+//            statusTextOld = assessmentCursor.getString(assessmentCursor.getColumnIndex(DBOpenHelper.ASSESSMENTS_STATUS));
+            statusSpinnerOld = Integer.parseInt(assessmentCursor.getString(assessmentCursor.getColumnIndex(DBOpenHelper.ASSESSMENTS_STATUS)));
+//            statusSpinnerOld = 1;  // TODO:  refactor this once code has been migrated to spinner instead of EditText
             titleEditor.setText(titleTextOld);
             detailsEditor.setText(detailsTextOld);
-            typeEditor.setText(typeTextOld);
-            statusEditor.setText(statusTextOld);
+//            typeEditor.setText(typeTextOld);
+            typeSpinner.setSelection(typeSpinnerOld);
+//            statusEditor.setText(statusTextOld);
+            statusSpinner.setSelection(statusSpinnerOld);
 
             // build out the list of alerts for this assessment and display them in the GUI
             final Uri alertURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_ALERTS);
@@ -212,26 +236,28 @@ public class ViewAssessmentActivity extends AppCompatActivity {
         // REFACTORED:: ADDED
         String titleTextNew = titleEditor.getText().toString().trim();
         String detailsTextNew = detailsEditor.getText().toString().trim();
-        String typeTextNew = typeEditor.getText().toString().trim();
-        String statusTextNew = statusEditor.getText().toString().trim();
+//        String typeTextNew = typeEditor.getText().toString().trim();
+        int typeSpinnerNew = typeSpinner.getSelectedItemPosition();
+//        String statusTextNew = statusEditor.getText().toString().trim();
+        int statusSpinnerNew = statusSpinner.getSelectedItemPosition();
 
         switch (action) {
             case Intent.ACTION_INSERT:
-                if (titleTextNew.length() == 0 || detailsTextNew.length() == 0 || typeTextNew.length() == 0 || statusTextNew.length() == 0) {
+                if (titleTextNew.length() == 0 || detailsTextNew.length() == 0) {
                     setResult(RESULT_CANCELED);
                 } else {
-                    insertAssessment(titleTextNew, detailsTextNew, typeTextNew, statusTextNew);
+                    insertAssessment(titleTextNew, detailsTextNew, typeSpinnerNew, statusSpinnerNew);
                 }
                 break;
             case Intent.ACTION_EDIT:
-                if (titleTextNew.length() == 0 || detailsTextNew.length() == 0 || typeTextNew.length() == 0 || statusTextNew.length() == 0) { // REFACTORED
+                if (titleTextNew.length() == 0 || detailsTextNew.length() == 0) { // REFACTORED
 //                    deleteNote();
-                } else if (titleTextOld.equals(titleTextNew) && detailsTextOld.equals(detailsTextNew) && typeTextOld.equals(typeTextNew) && statusTextOld.equals(statusTextNew)) { // REFACTORED
+                } else if (titleTextOld.equals(titleTextNew) && detailsTextOld.equals(detailsTextNew) && typeSpinnerOld == typeSpinnerNew && statusSpinnerOld == statusSpinnerNew) { // REFACTORED
                     setResult(RESULT_CANCELED);
                 } else {
 //                    updateNote(newText);
                     // REFACTORED:: ADDED
-                    updateAssessment(titleTextNew, detailsTextNew, typeTextNew, statusTextNew);
+                    updateAssessment(titleTextNew, detailsTextNew, typeSpinnerNew, statusSpinnerNew);
                 }
 
         }
@@ -243,7 +269,7 @@ public class ViewAssessmentActivity extends AppCompatActivity {
     }
 
     // REFACTORED:: ADDED
-    private void updateAssessment(String titleText, String detailsText, String typeText, String statusText) {
+    private void updateAssessment(String titleText, String detailsText, int typeText, int statusText) {
         ContentValues values = new ContentValues();
         values.put(DBOpenHelper.ASSESSMENTS_COURSEID, PID);
         values.put(DBOpenHelper.ASSESSMENTS_TITLE, titleText);
@@ -256,7 +282,7 @@ public class ViewAssessmentActivity extends AppCompatActivity {
         setResult(RESULT_OK);
     }
 
-    private void insertAssessment(String title, String details, String type, String status) {
+    private void insertAssessment(String title, String details, int type, int status) {
         ContentValues values = new ContentValues();
         values.put(DBOpenHelper.ASSESSMENTS_COURSEID, PID);
         values.put(DBOpenHelper.ASSESSMENTS_TITLE, title);

@@ -53,30 +53,42 @@
         android:layout_height="wrap_content"
         android:text="Assessment Type:"/>
 
-    <EditText
-        android:id="@+id/data_type"
-        android:layout_below="@id/txt_type"
-        android:layout_width="wrap_content"
+    <Spinner
+        android:id="@+id/typeSpinner"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Type placeholder text"/>
+        android:layout_below="@id/txt_type"/>
+
+    <!--<EditText-->
+        <!--android:id="@+id/data_type"-->
+        <!--android:layout_below="@id/typeSpinner"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="Type placeholder text"/>-->
 
     <TextView
         android:id="@+id/txt_status"
-        android:layout_below="@+id/data_type"
+        android:layout_below="@+id/typeSpinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Assessment Status:"/>
 
-    <EditText
-        android:id="@+id/data_status"
-        android:layout_below="@id/txt_status"
-        android:layout_width="wrap_content"
+    <Spinner
+        android:id="@+id/statusSpinner"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Status placeholder text"/>
+        android:layout_below="@id/txt_status"/>
+
+    <!--<EditText-->
+        <!--android:id="@+id/data_status"-->
+        <!--android:layout_below="@id/statusSpinner"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="Status placeholder text"/>-->
 
     <TextView
         android:id="@+id/txt_alerts"
-        android:layout_below="@+id/data_status"
+        android:layout_below="@+id/statusSpinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Alerts for this Assessment:"/>

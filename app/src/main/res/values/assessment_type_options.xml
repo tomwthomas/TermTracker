@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="course_status_array">
+    <string-array name="assessments_type_array">
         <item>Performance</item>
         <item>Objective</item>
     </string-array>
