@@ -248,6 +248,9 @@ public class ViewTermActivity extends AppCompatActivity {
     private void removeTerm() {
         Toast.makeText(this, "REMOVE TERM CALLED...", Toast.LENGTH_LONG).show();
         // TODO:  can not remove a term if there are courses still assigned per requirements
+        // check if any courses have this termID
+        // if not delete this term
+        // else alert the user via toast that their are courses attached, deleete those first
 
     }
 

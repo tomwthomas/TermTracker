@@ -303,7 +303,15 @@ public class ViewCourseActivity extends AppCompatActivity {
 
     private void removeCourse() {
         Toast.makeText(this, "REMOVE COURSE CALLED...", Toast.LENGTH_LONG).show();
-
+        // TODO:  need to cascade delete on course removal?
+        // option 1:  simply delete the course
+        // option 2:  delete all notes with course ID, get all assessments with this courseID and delete their notes, then them, then this course
+        // likely just do option 1 for expediency - option 2 is more real but this is an academic exercise
+        Uri courseURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_COURSES);
+        getContentResolver().delete(courseURI, coursesFilter, null);
+        action = Intent.ACTION_DELETE;
+        Toast.makeText(this, "COURSE DELETED...", Toast.LENGTH_SHORT).show();
+        onBackPressed();
     }
 
     private void finishEditing() {
