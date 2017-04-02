@@ -250,8 +250,22 @@ public class ViewTermActivity extends AppCompatActivity {
         // TODO:  can not remove a term if there are courses still assigned per requirements
         // check if any courses have this termID
         // if not delete this term
-        // else alert the user via toast that their are courses attached, deleete those first
+        // else alert the user via toast that their are courses attached, delete those first
 
+        Uri courseURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_COURSES);
+        String courseFilter = DBOpenHelper.COURSES_TERMID + "=" + currentTermID;
+        Cursor courseCursor = getContentResolver().query(courseURI, DBOpenHelper.COURSES_ALL_COLUMNS, courseFilter, null, null);
+        int termCount = courseCursor.getCount();
+        if(termCount > 0) {
+            Toast.makeText(this, "This term has courses assigned.\n\nREMOVE DENIED", Toast.LENGTH_LONG).show();
+        }
+        else {
+            Uri termURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_TERMS);
+            getContentResolver().delete(termURI, termsFilter, null);
+            action = Intent.ACTION_DELETE;
+            Toast.makeText(this, "TERM DELETED...", Toast.LENGTH_SHORT).show();
+            onBackPressed();
+        }
     }
 
     private void finishEditing() {
@@ -282,6 +296,9 @@ public class ViewTermActivity extends AppCompatActivity {
                 }
 
         }
+        Intent intent = new Intent();
+        intent.putExtra("returnValue", "9999");
+        setResult(RESULT_OK, intent);
         finish();
     }
 
