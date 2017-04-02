@@ -81,16 +81,15 @@
         android:layout_height="wrap_content"
         android:text="Course Status:"/>
 
-    <EditText
-        android:id="@+id/data_status"
-        android:layout_below="@id/txt_status"
-        android:layout_width="wrap_content"
+    <Spinner
+        android:id="@+id/statusSpinner"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Status placeholder text"/>
+        android:layout_below="@id/txt_status"/>
 
     <TextView
         android:id="@+id/txt_mentor"
-        android:layout_below="@+id/data_status"
+        android:layout_below="@+id/statusSpinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Course Mentor:"/>
@@ -126,5 +125,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
+
+
 
 </RelativeLayout>

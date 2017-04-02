@@ -1,6 +1,7 @@
 package com.tomwt.mobile.termtracker;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -25,9 +26,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.util.Locale;
@@ -47,19 +50,24 @@ public class ViewCourseActivity extends AppCompatActivity {
     private EditText detailsEditor;
     private EditText startEditor;
     private EditText endEditor;
-    private EditText statusEditor;
+//    private EditText statusEditor;
+    private Spinner statusSpinner;
     private EditText mentorEditor;
     private String titleTextOld;
     private String detailsTextOld;
     private String startTextOld;
     private String endTextOld;
-    private String statusTextOld;
+//    private String statusTextOld;
+    private int statusSpinnerOld;
     private String mentorTextOld;
 
     private int currentCourseID;
     private int PID;
 
     final Calendar alertCal = Calendar.getInstance();
+
+
+
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
@@ -90,8 +98,19 @@ public class ViewCourseActivity extends AppCompatActivity {
         detailsEditor = (EditText) findViewById(R.id.data_details);
         startEditor = (EditText) findViewById(R.id.data_startDate);
         endEditor = (EditText) findViewById(R.id.data_endDate);
-        statusEditor = (EditText) findViewById(R.id.data_status);
+//        statusEditor = (EditText) findViewById(R.id.data_status);
+        statusSpinner = (Spinner) findViewById(R.id.statusSpinner);
         mentorEditor = (EditText) findViewById(R.id.data_mentor);
+
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.course_status_array, android.R.layout.simple_spinner_dropdown_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        statusSpinner.setAdapter(adapter);
+        addSpinnerListener();
+
+//        int currentPosition = spinner.getSelectedItemPosition();
+//        spinner.setSelection(2);
+
 
         Intent intent = getIntent();
 
@@ -122,13 +141,16 @@ public class ViewCourseActivity extends AppCompatActivity {
             detailsTextOld = courseCursor.getString(courseCursor.getColumnIndex(DBOpenHelper.COURSES_DETAILS));
             startTextOld = courseCursor.getString(courseCursor.getColumnIndex(DBOpenHelper.COURSES_START));
             endTextOld = courseCursor.getString(courseCursor.getColumnIndex(DBOpenHelper.COURSES_END));
-            statusTextOld = courseCursor.getString(courseCursor.getColumnIndex(DBOpenHelper.COURSES_STATUS));
+//            statusTextOld = courseCursor.getString(courseCursor.getColumnIndex(DBOpenHelper.COURSES_STATUS));
+            statusSpinnerOld = Integer.parseInt(courseCursor.getString(courseCursor.getColumnIndex(DBOpenHelper.COURSES_STATUS)));
+//            statusSpinnerOld = 1; // TODO:  refactor this once code has been migrated to spinner instead of EditText
             mentorTextOld = courseCursor.getString(courseCursor.getColumnIndex(DBOpenHelper.COURSES_MENTOR));
             titleEditor.setText(titleTextOld);
             detailsEditor.setText(detailsTextOld);
             startEditor.setText(startTextOld);
             endEditor.setText(endTextOld);
-            statusEditor.setText(statusTextOld);
+//            statusEditor.setText(statusTextOld);
+            statusSpinner.setSelection(statusSpinnerOld);
             mentorEditor.setText(mentorTextOld);
 
             // if we are calling this activity from Manage Courses we won't have a PID - so get one from the DB
@@ -207,6 +229,12 @@ public class ViewCourseActivity extends AppCompatActivity {
 
     }
 
+
+    public void addSpinnerListener() {
+        Spinner spinner = (Spinner) findViewById(R.id.statusSpinner);
+        spinner.setOnItemSelectedListener(new SpinnerActivity());
+    }
+
     private void updateLabel(EditText toUpdate) {
 //        String myFormat = "MM/dd/yy";
         String myFormat = "yyyy-MM-dd";
@@ -262,26 +290,27 @@ public class ViewCourseActivity extends AppCompatActivity {
         String detailsTextNew = detailsEditor.getText().toString().trim();
         String startTextNew = startEditor.getText().toString().trim();
         String endTextNew = endEditor.getText().toString().trim();
-        String statusTextNew = statusEditor.getText().toString().trim();
+//        String statusTextNew = statusEditor.getText().toString().trim();
+        int statusSpinnerNew = statusSpinner.getSelectedItemPosition();
         String mentorTextNew = mentorEditor.getText().toString().trim();
 
         switch (action) {
             case Intent.ACTION_INSERT:
-                if (titleTextNew.length() == 0 || detailsTextNew.length() == 0 || startTextNew.length() == 0 || endTextNew.length() == 0 || statusTextNew.length() == 0 || mentorTextNew.length() == 0) {
+                if (titleTextNew.length() == 0 || detailsTextNew.length() == 0 || startTextNew.length() == 0 || endTextNew.length() == 0 || mentorTextNew.length() == 0) {
                     setResult(RESULT_CANCELED);
                 } else {
-                    insertCourse(titleTextNew, detailsTextNew, startTextNew, endTextNew, statusTextNew, mentorTextNew);
+                    insertCourse(titleTextNew, detailsTextNew, startTextNew, endTextNew, statusSpinnerNew, mentorTextNew);
                 }
                 break;
             case Intent.ACTION_EDIT:
-                if (titleTextNew.length() == 0 || detailsTextNew.length() == 0 || startTextNew.length() == 0 || endTextNew.length() == 0 || statusTextNew.length() == 0 || mentorTextNew.length() == 0) { // REFACTORED
+                if (titleTextNew.length() == 0 || detailsTextNew.length() == 0 || startTextNew.length() == 0 || endTextNew.length() == 0 || mentorTextNew.length() == 0) { // REFACTORED
 //                    deleteNote();
-                } else if (titleTextOld.equals(titleTextNew) && detailsTextOld.equals(detailsTextNew) && startTextOld.equals(startTextNew) && endTextOld.equals(endTextNew) && statusTextOld.equals(statusTextNew) && mentorTextOld.equals(mentorTextNew)) { // REFACTORED
+                } else if (titleTextOld.equals(titleTextNew) && detailsTextOld.equals(detailsTextNew) && startTextOld.equals(startTextNew) && endTextOld.equals(endTextNew) && statusSpinnerOld == statusSpinnerNew && mentorTextOld.equals(mentorTextNew)) { // REFACTORED
                     setResult(RESULT_CANCELED);
                 } else {
 //                    updateNote(newText);
                     // REFACTORED:: ADDED
-                    updateCourse(titleTextNew, detailsTextNew, startTextNew, endTextNew, statusTextNew, mentorTextNew);
+                    updateCourse(titleTextNew, detailsTextNew, startTextNew, endTextNew, statusSpinnerNew, mentorTextNew);
                 }
 
         }
@@ -293,7 +322,7 @@ public class ViewCourseActivity extends AppCompatActivity {
     }
 
     // REFACTORED:: ADDED
-    private void updateCourse(String titleText, String detailsText, String startText, String endText, String statusText, String mentorText) {
+    private void updateCourse(String titleText, String detailsText, String startText, String endText, int statusText, String mentorText) {
         ContentValues values = new ContentValues();
         values.put(DBOpenHelper.COURSES_TERMID, PID);
         values.put(DBOpenHelper.COURSES_TITLE, titleText);
@@ -308,7 +337,7 @@ public class ViewCourseActivity extends AppCompatActivity {
         setResult(RESULT_OK);
     }
 
-    private void insertCourse(String title, String details, String startDate, String endDate, String status, String mentor) {
+    private void insertCourse(String title, String details, String startDate, String endDate, int status, String mentor) {
         ContentValues values = new ContentValues();
         values.put(DBOpenHelper.COURSES_TERMID, PID);
         values.put(DBOpenHelper.COURSES_TITLE, title);
