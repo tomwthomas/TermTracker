@@ -20,6 +20,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -233,6 +235,22 @@ public class ViewTermActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if(action != Intent.ACTION_INSERT) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.menu_terms, menu);
+        }
+
+        return true;
+    }
+
+    private void removeTerm() {
+        Toast.makeText(this, "REMOVE TERM CALLED...", Toast.LENGTH_LONG).show();
+        // TODO:  can not remove a term if there are courses still assigned per requirements
+
+    }
+
     private void finishEditing() {
         String newText = editor.getText().toString().trim();
 
@@ -310,6 +328,9 @@ public class ViewTermActivity extends AppCompatActivity {
             case android.R.id.home:
                 onBackPressed();
                 NavUtils.navigateUpFromSameTask(this);
+                return true;
+            case R.id.menu_removeTerm:
+                removeTerm();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

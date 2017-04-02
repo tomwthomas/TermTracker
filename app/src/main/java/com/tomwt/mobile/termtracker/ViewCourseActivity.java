@@ -22,6 +22,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -275,6 +277,34 @@ public class ViewCourseActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if(action != Intent.ACTION_INSERT) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.menu_courses, menu);
+        }
+
+        return true;
+    }
+
+    private void addNote() {
+        Toast.makeText(this, "ADD NOTE CALLED...", Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(ViewCourseActivity.this, ViewNoteActivity.class);
+
+//        // build a URI that refers to the specific note we want to edit
+//        Uri notesURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_NOTES);
+//        notesURI = Uri.parse(notesURI + "/" + currentID);
+//        intent.putExtra(TermTrackerProvider.CONTENT_ITEM_TYPE, notesURI);
+        intent.putExtra(TermTrackerProvider.CONTENT_PARENT_TYPE, TermTrackerProvider.TYPE_COURSE);
+        intent.putExtra(TermTrackerProvider.CONTENT_PARENT_ID, currentCourseID);
+
+        startActivityForResult(intent, EDITOR_REQUEST_CODE);
+    }
+
+    private void removeCourse() {
+        Toast.makeText(this, "REMOVE COURSE CALLED...", Toast.LENGTH_LONG).show();
+
+    }
 
     private void finishEditing() {
 //        String newText = editor.getText().toString().trim();
@@ -356,6 +386,12 @@ public class ViewCourseActivity extends AppCompatActivity {
                 intent.putExtra("returnValue", "9999");
                 setResult(RESULT_OK, intent);
                 finish();
+                return true;
+            case R.id.menu_addNote:
+                addNote();
+                return true;
+            case R.id.menu_removeCourse:
+                removeCourse();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
