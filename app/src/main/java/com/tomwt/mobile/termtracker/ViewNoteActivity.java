@@ -19,6 +19,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 //import android.widget.AdapterView;
@@ -224,6 +226,29 @@ public class ViewNoteActivity extends AppCompatActivity {
 //    }
 
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if(action != Intent.ACTION_INSERT) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.menu_notes, menu);
+        }
+
+        return true;
+    }
+
+    private void shareNote() {
+        Toast.makeText(this, "SHARE NOTE CALLED...", Toast.LENGTH_LONG).show();
+        String[] addresses = {"ttho163@wgu.edu"};
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        intent.setData(Uri.parse("mailto:"));
+        intent.putExtra(Intent.EXTRA_EMAIL, addresses);
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Sharing a note from my TermTracker");
+        intent.putExtra(Intent.EXTRA_TEXT, noteEditor.getText().toString().trim());
+        if(intent.resolveActivity(getPackageManager()) != null) {
+            intent.setType("message/rfc822");
+            startActivity(Intent.createChooser(intent, "Select email client:"));
+        }
+    }
 
     private void finishEditing() {
 //        String newText = editor.getText().toString().trim();
@@ -297,6 +322,9 @@ public class ViewNoteActivity extends AppCompatActivity {
                 return true;
             case R.id.menu_addNote:
 //                addNote();
+                return true;
+            case R.id.menu_shareNote:
+                shareNote();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
