@@ -44,7 +44,8 @@ public class ViewAssessmentActivity extends AppCompatActivity {
     private String typeTextOld;
     private String statusTextOld;
 
-    private String currentID;
+    private int currentAssessmentID;
+    private int PID;
 
 
 
@@ -77,10 +78,12 @@ public class ViewAssessmentActivity extends AppCompatActivity {
         Intent intent = getIntent();
 
         Uri uri = intent.getParcelableExtra(TermTrackerProvider.CONTENT_ITEM_TYPE);
+        PID = intent.getIntExtra(TermTrackerProvider.CONTENT_PARENT_ID, 0);
 
         if (uri == null) {
             action = Intent.ACTION_INSERT;
-            getSupportActionBar().setTitle("INTENT.INSERT (uri==null)...");
+//            getSupportActionBar().setTitle("INTENT.INSERT (uri==null)...");
+            fab.hide();
         } else {
             action = Intent.ACTION_EDIT;
 //            notesFilter = DBOpenHelper.NOTES_ID + "=" + uri.getLastPathSegment();
@@ -93,8 +96,8 @@ public class ViewAssessmentActivity extends AppCompatActivity {
 
             // REFACTORED:: ADDED
             Uri assessmentURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_ASSESSMENTS);
-            currentID = uri.getLastPathSegment();
-            assessmentsFilter = DBOpenHelper.ASSESSMENTS_ID + "=" + currentID;
+            currentAssessmentID = Integer.parseInt(uri.getLastPathSegment());
+            assessmentsFilter = DBOpenHelper.ASSESSMENTS_ID + "=" + currentAssessmentID;
             Cursor assessmentCursor = getContentResolver().query(assessmentURI, DBOpenHelper.ASSESSMENTS_ALL_COLUMNS, assessmentsFilter, null, null);
             assessmentCursor.moveToFirst();
             titleTextOld = assessmentCursor.getString(assessmentCursor.getColumnIndex(DBOpenHelper.ASSESSMENTS_TITLE));
@@ -108,7 +111,8 @@ public class ViewAssessmentActivity extends AppCompatActivity {
 
             // build out the list of alerts for this assessment and display them in the GUI
             final Uri alertURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_ALERTS);
-            Cursor alertCursor = getContentResolver().query(alertURI, DBOpenHelper.ALERTS_ALL_COLUMNS, null, null, null);
+            String alertsFilter = DBOpenHelper.ALERTS_PID + "=" + currentAssessmentID;
+            Cursor alertCursor = getContentResolver().query(alertURI, DBOpenHelper.ALERTS_ALL_COLUMNS, alertsFilter, null, null);
             String[] from = {DBOpenHelper.ALERTS_DATE};
             int[] to = {android.R.id.text1};
             CursorAdapter cursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, alertCursor, from, to, 0);
@@ -123,10 +127,43 @@ public class ViewAssessmentActivity extends AppCompatActivity {
                     Uri uri = Uri.parse(alertURI + "/" + id);
                     Log.d("ViewAssessAlertActivity", "alertURI: " + uri.toString());
                     intent.putExtra(TermTrackerProvider.CONTENT_ITEM_TYPE, uri);
+                    intent.putExtra(TermTrackerProvider.CONTENT_PARENT_TYPE, TermTrackerProvider.TYPE_ASSESSMENT);
+                    intent.putExtra(TermTrackerProvider.CONTENT_PARENT_ID, currentAssessmentID);
                     startActivityForResult(intent, EDITOR_REQUEST_CODE);
                 }
             });
+        }
+    }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == EDITOR_REQUEST_CODE) {
+            if(resultCode == RESULT_OK) {
+                // build out the list of alerts for this assessment and display them in the GUI
+                final Uri alertURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_ALERTS);
+                String alertsFilter = DBOpenHelper.ALERTS_PID + "=" + currentAssessmentID;
+                Cursor alertCursor = getContentResolver().query(alertURI, DBOpenHelper.ALERTS_ALL_COLUMNS, alertsFilter, null, null);
+                String[] from = {DBOpenHelper.ALERTS_DATE};
+                int[] to = {android.R.id.text1};
+                CursorAdapter cursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, alertCursor, from, to, 0);
+
+                ListView list = (ListView) findViewById(android.R.id.list);
+                list.setAdapter(cursorAdapter);
+
+                list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Intent intent = new Intent(ViewAssessmentActivity.this, ViewAssessmentAlertActivity.class);
+                        Uri uri = Uri.parse(alertURI + "/" + id);
+                        Log.d("ViewAssessAlertActivity", "alertURI: " + uri.toString());
+                        intent.putExtra(TermTrackerProvider.CONTENT_ITEM_TYPE, uri);
+                        intent.putExtra(TermTrackerProvider.CONTENT_PARENT_TYPE, TermTrackerProvider.TYPE_ASSESSMENT);
+                        intent.putExtra(TermTrackerProvider.CONTENT_PARENT_ID, currentAssessmentID);
+                        startActivityForResult(intent, EDITOR_REQUEST_CODE);
+                    }
+                });
+            }
         }
     }
 
@@ -144,6 +181,14 @@ public class ViewAssessmentActivity extends AppCompatActivity {
         Toast.makeText(this, "ADD ALERT CALLED...", Toast.LENGTH_LONG).show();
         Intent intent = new Intent(ViewAssessmentActivity.this, ViewAssessmentAlertActivity.class);
 
+//        // build a URI that refers to the specific alert we want to edit
+//        Uri alertsURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_ALERTS);
+//        alertsURI = Uri.parse(alertsURI + "/" + currentID);
+//        intent.putExtra(TermTrackerProvider.CONTENT_ITEM_TYPE, alertsURI);
+//        intent.putExtra(TermTrackerProvider.CONTENT_PARENT_TYPE, TermTrackerProvider.TYPE_ASSESSMENT);
+        intent.putExtra(TermTrackerProvider.CONTENT_PARENT_TYPE, TermTrackerProvider.TYPE_ASSESSMENT);
+        intent.putExtra(TermTrackerProvider.CONTENT_PARENT_ID, currentAssessmentID);
+
         startActivityForResult(intent, EDITOR_REQUEST_CODE);
     }
 
@@ -151,11 +196,12 @@ public class ViewAssessmentActivity extends AppCompatActivity {
         Toast.makeText(this, "ADD NOTE CALLED...", Toast.LENGTH_LONG).show();
         Intent intent = new Intent(ViewAssessmentActivity.this, ViewNoteActivity.class);
 
-        // build a URI that refers to the specific note we want to edit
-        Uri notesURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_NOTES);
-        notesURI = Uri.parse(notesURI + "/" + currentID);
-        intent.putExtra(TermTrackerProvider.CONTENT_ITEM_TYPE, notesURI);
+//        // build a URI that refers to the specific note we want to edit
+//        Uri notesURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_NOTES);
+//        notesURI = Uri.parse(notesURI + "/" + currentID);
+//        intent.putExtra(TermTrackerProvider.CONTENT_ITEM_TYPE, notesURI);
         intent.putExtra(TermTrackerProvider.CONTENT_PARENT_TYPE, TermTrackerProvider.TYPE_ASSESSMENT);
+        intent.putExtra(TermTrackerProvider.CONTENT_PARENT_ID, currentAssessmentID);
 
         startActivityForResult(intent, EDITOR_REQUEST_CODE);
     }
@@ -199,6 +245,7 @@ public class ViewAssessmentActivity extends AppCompatActivity {
     // REFACTORED:: ADDED
     private void updateAssessment(String titleText, String detailsText, String typeText, String statusText) {
         ContentValues values = new ContentValues();
+        values.put(DBOpenHelper.ASSESSMENTS_COURSEID, PID);
         values.put(DBOpenHelper.ASSESSMENTS_TITLE, titleText);
         values.put(DBOpenHelper.ASSESSMENTS_DETAILS, detailsText);
         values.put(DBOpenHelper.ASSESSMENTS_TYPE, typeText);
@@ -211,6 +258,7 @@ public class ViewAssessmentActivity extends AppCompatActivity {
 
     private void insertAssessment(String title, String details, String type, String status) {
         ContentValues values = new ContentValues();
+        values.put(DBOpenHelper.ASSESSMENTS_COURSEID, PID);
         values.put(DBOpenHelper.ASSESSMENTS_TITLE, title);
         values.put(DBOpenHelper.ASSESSMENTS_DETAILS, details);
         values.put(DBOpenHelper.ASSESSMENTS_TYPE, type);

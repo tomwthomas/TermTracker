@@ -74,4 +74,42 @@ public class ManagedTermsActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == EDITOR_REQUEST_CODE) {
+            if(resultCode == RESULT_OK) {
+//                String returnedValue = data.getStringExtra("returnValue");
+//                Toast.makeText(this, "value returned: " + returnedValue, Toast.LENGTH_LONG).show();
+
+                // build out the list of upcoming milestones and display them in the GUI
+                // REFACTORED:: ADDED
+                Uri termURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_TERMS);
+                // REFACTORED:: Cursor cursor = getContentResolver().query(TermTrackerProvider.CONTENT_URI, DBOpenHelper.NOTES_ALL_COLUMNS, null, null, null, null);
+                Cursor cursor = getContentResolver().query(termURI, DBOpenHelper.TERMS_ALL_COLUMNS, null, null, null, null);
+                // REFACTORED:: String[] from = {DBOpenHelper.NOTES_DETAILS};
+                String[] from = {DBOpenHelper.TERMS_TITLE}; // TERMS_TITLE
+                int[] to = {android.R.id.text1};
+                CursorAdapter cursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, cursor, from, to, 0);
+
+                ListView list = (ListView) findViewById(android.R.id.list);
+                list.setAdapter(cursorAdapter);
+
+                list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Intent intent = new Intent(ManagedTermsActivity.this, ViewTermActivity.class);
+                        Uri uri = Uri.parse(TermTrackerProvider.CONTENT_URI + "/" + id);
+                        Log.d("ManagedTermsActivity", "termURI: " + uri.toString());
+                        intent.putExtra(TermTrackerProvider.CONTENT_ITEM_TYPE, uri);
+                        startActivityForResult(intent, EDITOR_REQUEST_CODE);
+                        // startActivity(intent);
+                    }
+                });
+
+
+            }
+        }
+    }
+
 }

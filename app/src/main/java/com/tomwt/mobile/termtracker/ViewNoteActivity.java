@@ -5,7 +5,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
+//import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -21,23 +21,24 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
+//import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.CursorAdapter;
+//import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
+//import android.widget.ListView;
+//import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.IOException;
+//import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class ViewNoteActivity extends AppCompatActivity {
 
-    private static final int EDITOR_REQUEST_CODE = 1001;
+    // private static final int EDITOR_REQUEST_CODE = 1001;
+    static final int REQUEST_TAKE_PHOTO = 1;
 
     private String action;
     private EditText noteEditor;
@@ -50,8 +51,9 @@ public class ViewNoteActivity extends AppCompatActivity {
     private ImageView imgview_takePhoto;
     private Uri note_img_file;
 
-    private String PID;
     private int parentType;
+    private int PID;
+//    private String currentNoteID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,27 +87,30 @@ public class ViewNoteActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
 
-        Uri uri = intent.getParcelableExtra(TermTrackerProvider.CONTENT_ITEM_TYPE);
-        PID = uri.getLastPathSegment();
+//        Uri uri = intent.getParcelableExtra(TermTrackerProvider.CONTENT_ITEM_TYPE);
+//        PID = uri.getLastPathSegment();
 //        String parentType = intent.getParcelableExtra(TermTrackerProvider.CONTENT_PARENT_TYPE);
         parentType = intent.getIntExtra(TermTrackerProvider.CONTENT_PARENT_TYPE, 0);
+        PID = intent.getIntExtra(TermTrackerProvider.CONTENT_PARENT_ID, 0);
         int noteCount;
         TermTrackerProvider TTP = new TermTrackerProvider();
-        Cursor cursor = TTP.getAssessmentNoteCount(ViewNoteActivity.this, PID, String.valueOf(parentType));
+        Cursor cursor = TTP.getAssessmentNoteCount(ViewNoteActivity.this, String.valueOf(PID), String.valueOf(parentType));
         cursor.moveToFirst();
         noteCount = Integer.parseInt(cursor.getString(0));
         cursor.close();
 
         if (noteCount == 0) {
             action = Intent.ACTION_INSERT;
-            getSupportActionBar().setTitle("INTENT.INSERT (uri==null)...");
+//            getSupportActionBar().setTitle("INTENT.INSERT (uri==null)...");
         } else {
             action = Intent.ACTION_EDIT;
 
             Uri noteURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_NOTES);
-            notesFilter = DBOpenHelper.NOTES_ID + "=" + uri.getLastPathSegment();
+//            currentNoteID = uri.getLastPathSegment();
+            notesFilter = DBOpenHelper.NOTES_TYPE + "=" + parentType + " and " + DBOpenHelper.NOTES_PID + "=" + PID;
             Cursor noteCursor = getContentResolver().query(noteURI, DBOpenHelper.NOTES_ALL_COLUMNS, notesFilter, null, null);
             noteCursor.moveToFirst();
+//            currentNoteID = noteCursor.getString(noteCursor.getColumnIndex(DBOpenHelper.NOTES_ID));
             noteTextOld = noteCursor.getString(noteCursor.getColumnIndex(DBOpenHelper.NOTES_DETAILS));
             imgTextOld = noteCursor.getString(noteCursor.getColumnIndex(DBOpenHelper.NOTES_IMG));
             imgTextNew = imgTextOld;
@@ -175,48 +180,48 @@ public class ViewNoteActivity extends AppCompatActivity {
 //        }
 //    }
 
-    static final int REQUEST_TAKE_PHOTO = 1;
 
-    public void dispatchTakePictureIntent(View view) {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Ensure that there's a camera activity to handle the intent
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            // Create the File where the photo should go
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                // Error occurred while creating the File
 
-            }
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.tomwt.mobile.termtracker.fileprovider",
-                        photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-            }
-        }
-    }
+//    public void dispatchTakePictureIntent(View view) {
+//        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//        // Ensure that there's a camera activity to handle the intent
+//        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+//            // Create the File where the photo should go
+//            File photoFile = null;
+//            try {
+//                photoFile = createImageFile();
+//            } catch (IOException ex) {
+//                // Error occurred while creating the File
+//
+//            }
+//            // Continue only if the File was successfully created
+//            if (photoFile != null) {
+//                Uri photoURI = FileProvider.getUriForFile(this,
+//                        "com.tomwt.mobile.termtracker.fileprovider",
+//                        photoFile);
+//                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+//                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+//            }
+//        }
+//    }
 
-    String mCurrentPhotoPath;
+//    String mCurrentPhotoPath;
 
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-
-        // Save a file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = image.getAbsolutePath();
-        return image;
-    }
+//    private File createImageFile() throws IOException {
+//        // Create an image file name
+//        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+//        String imageFileName = "JPEG_" + timeStamp + "_";
+//        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+//        File image = File.createTempFile(
+//                imageFileName,  /* prefix */
+//                ".jpg",         /* suffix */
+//                storageDir      /* directory */
+//        );
+//
+//        // Save a file: path for use with ACTION_VIEW intents
+//        mCurrentPhotoPath = image.getAbsolutePath();
+//        return image;
+//    }
 
 
 
@@ -252,7 +257,7 @@ public class ViewNoteActivity extends AppCompatActivity {
     }
 
     // REFACTORED:: ADDED
-    private void updateNote(String noteText, String imgPath, String currentPID, int currentParentType) {
+    private void updateNote(String noteText, String imgPath, int currentPID, int currentParentType) {
         ContentValues values = new ContentValues();
         values.put(DBOpenHelper.NOTES_DETAILS, noteText);
         values.put(DBOpenHelper.NOTES_IMG, imgPath);
@@ -264,7 +269,7 @@ public class ViewNoteActivity extends AppCompatActivity {
         setResult(RESULT_OK);
     }
 
-    private void insertNote(String noteText, String imgPath, String currentPID, int currentParentType) {
+    private void insertNote(String noteText, String imgPath, int currentPID, int currentParentType) {
         ContentValues values = new ContentValues();
         values.put(DBOpenHelper.NOTES_DETAILS, noteText);
         values.put(DBOpenHelper.NOTES_IMG, imgPath);

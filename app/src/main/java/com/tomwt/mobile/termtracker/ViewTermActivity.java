@@ -41,6 +41,8 @@ public class ViewTermActivity extends AppCompatActivity {
     private String startTextOld;
     private String endTextOld;
 
+    private int currentTermID;
+
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
@@ -58,6 +60,7 @@ public class ViewTermActivity extends AppCompatActivity {
 //                        .setAction("Action", null).show();
 
                 Intent intent = new Intent(ViewTermActivity.this, ViewCourseActivity.class);
+                intent.putExtra(TermTrackerProvider.CONTENT_PARENT_ID, currentTermID);
                 startActivityForResult(intent, EDITOR_REQUEST_CODE);
             }
         });
@@ -77,6 +80,7 @@ public class ViewTermActivity extends AppCompatActivity {
         if (uri == null) {
             action = Intent.ACTION_INSERT;
             getSupportActionBar().setTitle("INTENT.INSERT (uri==null)...");
+            fab.hide();
         } else {
             action = Intent.ACTION_EDIT;
             notesFilter = DBOpenHelper.NOTES_ID + "=" + uri.getLastPathSegment();
@@ -89,7 +93,8 @@ public class ViewTermActivity extends AppCompatActivity {
 
             // REFACTORED:: ADDED
             Uri termURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_TERMS);
-            termsFilter = DBOpenHelper.TERMS_ID + "=" + uri.getLastPathSegment();
+            currentTermID = Integer.parseInt(uri.getLastPathSegment());
+            termsFilter = DBOpenHelper.TERMS_ID + "=" + currentTermID;
             Cursor termCursor = getContentResolver().query(termURI, DBOpenHelper.TERMS_ALL_COLUMNS, termsFilter, null, null);
             termCursor.moveToFirst();
             titleTextOld = termCursor.getString(termCursor.getColumnIndex(DBOpenHelper.TERMS_TITLE));
@@ -101,7 +106,8 @@ public class ViewTermActivity extends AppCompatActivity {
 
             // build out the list of courses for this term and display them in the GUI
             final Uri courseURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_COURSES);
-            Cursor courseCursor = getContentResolver().query(courseURI, DBOpenHelper.COURSES_ALL_COLUMNS, null, null, null);
+            String courseFilter = DBOpenHelper.COURSES_TERMID + "=" + currentTermID;
+            Cursor courseCursor = getContentResolver().query(courseURI, DBOpenHelper.COURSES_ALL_COLUMNS, courseFilter, null, null);
             String[] from = {DBOpenHelper.COURSES_TITLE};
             int[] to = {android.R.id.text1};
             CursorAdapter cursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, courseCursor, from, to, 0);
@@ -116,6 +122,7 @@ public class ViewTermActivity extends AppCompatActivity {
                     Uri uri = Uri.parse(courseURI + "/" + id);
                     Log.d("ViewTermActivity", "courseURI: " + uri.toString());
                     intent.putExtra(TermTrackerProvider.CONTENT_ITEM_TYPE, uri);
+                    intent.putExtra(TermTrackerProvider.CONTENT_PARENT_ID, currentTermID);
                     startActivityForResult(intent, EDITOR_REQUEST_CODE);
                 }
             });
@@ -132,7 +139,8 @@ public class ViewTermActivity extends AppCompatActivity {
 
                 // build out the list of courses for this term and display them in the GUI
                 final Uri courseURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_COURSES);
-                Cursor courseCursor = getContentResolver().query(courseURI, DBOpenHelper.COURSES_ALL_COLUMNS, null, null, null);
+                String courseFilter = DBOpenHelper.COURSES_TERMID + "=" + currentTermID;
+                Cursor courseCursor = getContentResolver().query(courseURI, DBOpenHelper.COURSES_ALL_COLUMNS, courseFilter, null, null);
                 String[] from = {DBOpenHelper.COURSES_TITLE};
                 int[] to = {android.R.id.text1};
                 CursorAdapter cursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, courseCursor, from, to, 0);
@@ -147,6 +155,7 @@ public class ViewTermActivity extends AppCompatActivity {
                         Uri uri = Uri.parse(courseURI + "/" + id);
                         Log.d("ViewTermActivity", "courseURI: " + uri.toString());
                         intent.putExtra(TermTrackerProvider.CONTENT_ITEM_TYPE, uri);
+                        intent.putExtra(TermTrackerProvider.CONTENT_PARENT_ID, currentTermID);
                         startActivityForResult(intent, EDITOR_REQUEST_CODE);
                     }
                 });

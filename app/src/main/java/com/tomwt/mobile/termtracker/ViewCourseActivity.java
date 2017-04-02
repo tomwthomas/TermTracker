@@ -48,6 +48,8 @@ public class ViewCourseActivity extends AppCompatActivity {
     private String statusTextOld;
     private String mentorTextOld;
 
+    private int currentCourseID;
+    private int PID;
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
@@ -65,6 +67,7 @@ public class ViewCourseActivity extends AppCompatActivity {
 //                        .setAction("Action", null).show();
 
                 Intent intent = new Intent(ViewCourseActivity.this, ViewAssessmentActivity.class);
+                intent.putExtra(TermTrackerProvider.CONTENT_PARENT_ID, currentCourseID);
                 startActivityForResult(intent, EDITOR_REQUEST_CODE);
             }
         });
@@ -83,10 +86,12 @@ public class ViewCourseActivity extends AppCompatActivity {
         Intent intent = getIntent();
 
         Uri uri = intent.getParcelableExtra(TermTrackerProvider.CONTENT_ITEM_TYPE);
+        PID = intent.getIntExtra(TermTrackerProvider.CONTENT_PARENT_ID, 0);
 
         if (uri == null) {
             action = Intent.ACTION_INSERT;
             getSupportActionBar().setTitle("INTENT.INSERT (uri==null)...");
+            fab.hide();
         } else {
             action = Intent.ACTION_EDIT;
 //            notesFilter = DBOpenHelper.NOTES_ID + "=" + uri.getLastPathSegment();
@@ -99,7 +104,8 @@ public class ViewCourseActivity extends AppCompatActivity {
 
             // REFACTORED:: ADDED
             Uri courseURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_COURSES);
-            coursesFilter = DBOpenHelper.COURSES_ID + "=" + uri.getLastPathSegment();
+            currentCourseID = Integer.parseInt(uri.getLastPathSegment());
+            coursesFilter = DBOpenHelper.COURSES_ID + "=" + currentCourseID;
             Cursor courseCursor = getContentResolver().query(courseURI, DBOpenHelper.COURSES_ALL_COLUMNS, coursesFilter, null, null);
             courseCursor.moveToFirst();
             titleTextOld = courseCursor.getString(courseCursor.getColumnIndex(DBOpenHelper.COURSES_TITLE));
@@ -115,9 +121,14 @@ public class ViewCourseActivity extends AppCompatActivity {
             statusEditor.setText(statusTextOld);
             mentorEditor.setText(mentorTextOld);
 
+            // if we are calling this activity from Manage Courses we won't have a PID - so get one from the DB
+            if(PID == 0)
+                PID = Integer.parseInt(courseCursor.getString(courseCursor.getColumnIndex(DBOpenHelper.COURSES_ID)));
+
             // build out the list of assessments for this course and display them in the GUI
             final Uri assessmentsURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_ASSESSMENTS);
-            Cursor assessmentCursor = getContentResolver().query(assessmentsURI, DBOpenHelper.ASSESSMENTS_ALL_COLUMNS, null, null, null);
+            String assessmentsFilter = DBOpenHelper.ASSESSMENTS_COURSEID + "=" + currentCourseID;
+            Cursor assessmentCursor = getContentResolver().query(assessmentsURI, DBOpenHelper.ASSESSMENTS_ALL_COLUMNS, assessmentsFilter, null, null);
             String[] from = {DBOpenHelper.ASSESSMENTS_TITLE};
             int[] to = {android.R.id.text1};
             CursorAdapter cursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, assessmentCursor, from, to, 0);
@@ -132,9 +143,42 @@ public class ViewCourseActivity extends AppCompatActivity {
                     Uri uri = Uri.parse(assessmentsURI + "/" + id);
                     Log.d("ViewCourseActivity", "assessmentURI: " + uri.toString());
                     intent.putExtra(TermTrackerProvider.CONTENT_ITEM_TYPE, uri);
+                    intent.putExtra(TermTrackerProvider.CONTENT_PARENT_ID, currentCourseID);
                     startActivityForResult(intent, EDITOR_REQUEST_CODE);
                 }
             });
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == EDITOR_REQUEST_CODE) {
+            if(resultCode == RESULT_OK) {
+                // build out the list of assessments for this course and display them in the GUI
+                final Uri assessmentsURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_ASSESSMENTS);
+                String assessmentsFilter = DBOpenHelper.ASSESSMENTS_COURSEID + "=" + currentCourseID;
+                Cursor assessmentCursor = getContentResolver().query(assessmentsURI, DBOpenHelper.ASSESSMENTS_ALL_COLUMNS, assessmentsFilter, null, null);
+                String[] from = {DBOpenHelper.ASSESSMENTS_TITLE};
+                int[] to = {android.R.id.text1};
+                CursorAdapter cursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, assessmentCursor, from, to, 0);
+
+                ListView list = (ListView) findViewById(android.R.id.list);
+                list.setAdapter(cursorAdapter);
+
+                list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Intent intent = new Intent(ViewCourseActivity.this, ViewAssessmentActivity.class);
+                        Uri uri = Uri.parse(assessmentsURI + "/" + id);
+                        Log.d("ViewCourseActivity", "assessmentURI: " + uri.toString());
+                        intent.putExtra(TermTrackerProvider.CONTENT_ITEM_TYPE, uri);
+                        intent.putExtra(TermTrackerProvider.CONTENT_PARENT_ID, currentCourseID);
+                        startActivityForResult(intent, EDITOR_REQUEST_CODE);
+                    }
+                });
+
+            }
         }
     }
 
@@ -180,6 +224,7 @@ public class ViewCourseActivity extends AppCompatActivity {
     // REFACTORED:: ADDED
     private void updateCourse(String titleText, String detailsText, String startText, String endText, String statusText, String mentorText) {
         ContentValues values = new ContentValues();
+        values.put(DBOpenHelper.COURSES_TERMID, PID);
         values.put(DBOpenHelper.COURSES_TITLE, titleText);
         values.put(DBOpenHelper.COURSES_DETAILS, detailsText);
         values.put(DBOpenHelper.COURSES_START, startText);
@@ -194,6 +239,7 @@ public class ViewCourseActivity extends AppCompatActivity {
 
     private void insertCourse(String title, String details, String startDate, String endDate, String status, String mentor) {
         ContentValues values = new ContentValues();
+        values.put(DBOpenHelper.COURSES_TERMID, PID);
         values.put(DBOpenHelper.COURSES_TITLE, title);
         values.put(DBOpenHelper.COURSES_DETAILS, details);
         values.put(DBOpenHelper.COURSES_START, startDate);

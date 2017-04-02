@@ -26,6 +26,7 @@ public class TermTrackerProvider extends ContentProvider {
 
     public static final String CONTENT_ITEM_TYPE = "Note";
     public static final String CONTENT_PARENT_TYPE = "ParentType";
+    public static final String CONTENT_PARENT_ID = "ParentID";
 
     public static final int TYPE_ASSESSMENT = 1;
     public static final int TYPE_COURSE = 2;
@@ -54,9 +55,10 @@ public class TermTrackerProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 
-        if(uriMatcher.match(uri) == NOTES_ID) {
-            selection = DBOpenHelper.NOTES_ID + "=" + uri.getLastPathSegment();
-        }
+        //TODO:  below could be causing issues as we refactor!!  need to understand where if at all this is being used
+//        if(uriMatcher.match(uri) == NOTES_ID) {
+//            selection = DBOpenHelper.NOTES_ID + "=" + uri.getLastPathSegment();
+//        }
 
         // REFACTORED:: return termTrackerDB.query(DBOpenHelper.TABLE_NOTES, DBOpenHelper.NOTES_ALL_COLUMNS, selection, null, null, null, DBOpenHelper.NOTES_TIMESTAMP + " DESC");
         return termTrackerDB.query(uri.getPathSegments().get(0).toString(), projection, selection, null, null, null, sortOrder);

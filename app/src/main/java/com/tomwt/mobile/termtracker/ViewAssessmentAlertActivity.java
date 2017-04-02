@@ -4,7 +4,7 @@ import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.Notification;
-import android.app.NotificationManager;
+//import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
@@ -41,9 +41,9 @@ public class ViewAssessmentAlertActivity extends AppCompatActivity {
     private static final int EDITOR_REQUEST_CODE = 1001;
 
     private String action;
-    private EditText editor;
-    private String notesFilter;
-    private String oldText;
+//    private EditText editor;
+//    private String notesFilter;
+//    private String oldText;
 
     // REFACTORED::  ADDED
     private String alertsFilter;
@@ -51,7 +51,11 @@ public class ViewAssessmentAlertActivity extends AppCompatActivity {
     private EditText alertDateEditor;
     private String alertMsgTextOld;
     private String alertDateTextOld;
-    private String currentAlertID; // TODO:  NEED TO REFACTOR THIS
+    private String currentAlertID;
+
+    private int parentType;
+    private int PID;
+
 
     @TargetApi(Build.VERSION_CODES.N)
     @Override
@@ -78,10 +82,14 @@ public class ViewAssessmentAlertActivity extends AppCompatActivity {
         Intent intent = getIntent();
 
         Uri uri = intent.getParcelableExtra(TermTrackerProvider.CONTENT_ITEM_TYPE);
+//        PID = uri.getLastPathSegment();
+//        String parentType = intent.getParcelableExtra(TermTrackerProvider.CONTENT_PARENT_TYPE);
+        parentType = intent.getIntExtra(TermTrackerProvider.CONTENT_PARENT_TYPE, 0);
+        PID = intent.getIntExtra(TermTrackerProvider.CONTENT_PARENT_ID, 0);
 
         if (uri == null) {
             action = Intent.ACTION_INSERT;
-            getSupportActionBar().setTitle("INTENT.INSERT (uri==null)...");
+//            getSupportActionBar().setTitle("INTENT.INSERT (uri==null)...");
         } else {
             action = Intent.ACTION_EDIT;
 //            notesFilter = DBOpenHelper.NOTES_ID + "=" + uri.getLastPathSegment();
@@ -94,8 +102,9 @@ public class ViewAssessmentAlertActivity extends AppCompatActivity {
 
             // REFACTORED:: ADDED
             Uri alertURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_ALERTS);
-            alertsFilter = DBOpenHelper.ALERTS_ID + "=" + uri.getLastPathSegment();
-            currentAlertID = uri.getLastPathSegment(); // TODO::  NEED TO REFACTOR THIS!!!
+            currentAlertID = uri.getLastPathSegment();
+            alertsFilter = DBOpenHelper.ALERTS_ID + "=" + currentAlertID;
+
             Cursor alertCursor = getContentResolver().query(alertURI, DBOpenHelper.ALERTS_ALL_COLUMNS, alertsFilter, null, null);
             alertCursor.moveToFirst();
             alertMsgTextOld = alertCursor.getString(alertCursor.getColumnIndex(DBOpenHelper.ALERTS_TEXT));
@@ -169,7 +178,7 @@ public class ViewAssessmentAlertActivity extends AppCompatActivity {
 //        scheduleNotification(buildNotification("message 3"), 10000, 3);
     }
 
-    private void scheduleNotification(Notification notification, int delay, int notificationID) {
+    private void scheduleNotification(Notification notification, long delay, int notificationID) {
 
         Intent notificationIntent = new Intent(this, NotificationPublisher.class);
         notificationIntent.putExtra(NotificationPublisher.NOTIFICATION_ID, notificationID);
@@ -216,7 +225,7 @@ public class ViewAssessmentAlertActivity extends AppCompatActivity {
     private void removeAlert() {
         Toast.makeText(this, "REMOVE ALERT CALLED...", Toast.LENGTH_LONG).show();
         // this should build up the call to removeNotification based on the URI we currently have OR just move this call to there
-        removeNotification(alertMsgTextOld, Integer.parseInt(currentAlertID)); // TODO:  NEED TO REFACTOR THIS DO GLOBAL SEARCH!!
+        removeNotification(alertMsgTextOld, Integer.parseInt(currentAlertID));
         deleteAlert();
 //        Intent intent = new Intent(ViewAssessmentActivity.this, ViewAssessmentAlertActivity.class);
 //        startActivityForResult(intent, EDITOR_REQUEST_CODE);
@@ -255,7 +264,7 @@ public class ViewAssessmentAlertActivity extends AppCompatActivity {
 
         Intent intent = new Intent();
         intent.putExtra("returnValue", "9999");
-        setResult(RESULT_OK, intent);
+        setResult(RESULT_OK, intent); // TODO:  not really returning actual result, likely a global problem.  REFACTOR!
         finish();
     }
 
@@ -264,21 +273,40 @@ public class ViewAssessmentAlertActivity extends AppCompatActivity {
         ContentValues values = new ContentValues();
         values.put(DBOpenHelper.ALERTS_TEXT, alertMsgText);
         values.put(DBOpenHelper.ALERTS_DATE, alertDateText);
+        values.put(DBOpenHelper.ALERTS_TYPE, parentType);
+        values.put(DBOpenHelper.ALERTS_PID, PID);
         Uri alertURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_ALERTS);
         getContentResolver().update(alertURI, values, alertsFilter, null);
+        scheduleNotification(buildNotification(alertMsgText), buildAlertTarget(), Integer.parseInt(currentAlertID));
         Toast.makeText(this, "ALERTS UPDATED...", Toast.LENGTH_LONG).show();
         setResult(RESULT_OK);
-        // TODO:  NEED TO REFACTOR THIS TO UPDATE ALERT MESSAGE IN NOTIFICATION
     }
 
     private void insertAlert(String alertMsg, String alertDate) {
         ContentValues values = new ContentValues();
         values.put(DBOpenHelper.ALERTS_TEXT, alertMsg);
         values.put(DBOpenHelper.ALERTS_DATE, alertDate);
+        values.put(DBOpenHelper.ALERTS_TYPE, parentType);
+        values.put(DBOpenHelper.ALERTS_PID, PID);
         Uri alertURI = getContentResolver().insert(Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_ALERTS), values);
         Log.d("ViewAssessAlertActivity", "alertURI: " + alertURI.toString());
         Log.d("ViewAssessAlertActivity", "Inserted an alert " + alertURI.getLastPathSegment());
 
+//        String myFormat = "MM/dd/yy";
+//        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+//        String targetAlertDate = alertDateEditor.getText().toString().trim();
+//        Date date = new Date();
+//        try {
+//            date = sdf.parse(targetAlertDate);
+//        }
+//        catch (Exception e) { }
+//        long targetDateInMillis = date.getTime();
+//        long nowInMillis = SystemClock.elapsedRealtime();
+//        long delay = targetDateInMillis - nowInMillis;  // TODO:  would pass in below where is currently set to 60000 in order to alert on a target date
+        scheduleNotification(buildNotification(alertMsgEditor.getText().toString().trim()), buildAlertTarget(), Integer.parseInt(alertURI.getLastPathSegment()));
+    }
+
+    private long buildAlertTarget() {
         String myFormat = "MM/dd/yy";
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
         String targetAlertDate = alertDateEditor.getText().toString().trim();
@@ -289,8 +317,12 @@ public class ViewAssessmentAlertActivity extends AppCompatActivity {
         catch (Exception e) { }
         long targetDateInMillis = date.getTime();
         long nowInMillis = SystemClock.elapsedRealtime();
-        long delay = targetDateInMillis - nowInMillis;  // TODO:  would pass in below where is currently set to 60000 in order to alert on a target date
-        scheduleNotification(buildNotification(alertMsgEditor.getText().toString().trim()), 60000, Integer.parseInt(alertURI.getLastPathSegment()));
+        long delay = targetDateInMillis - nowInMillis;
+
+        if(delay < 45000)
+            delay = 45000;
+
+        return 45000; //delay;  //TODO:  remove this hardcoding to enable real notification dates to function - here for testing purposes
     }
 
     private void deleteAlert() {
