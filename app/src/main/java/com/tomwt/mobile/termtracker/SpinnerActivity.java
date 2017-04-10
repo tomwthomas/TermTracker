@@ -8,9 +8,9 @@ import android.widget.Toast;
 public class SpinnerActivity extends Activity implements AdapterView.OnItemSelectedListener {
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        Toast.makeText(parent.getContext(),
-                "OnItemSelectedListener : " + parent.getItemAtPosition(position).toString(),
-                Toast.LENGTH_LONG).show();
+//        Toast.makeText(parent.getContext(),
+//                "OnItemSelectedListener : " + parent.getItemAtPosition(position).toString(),
+//                Toast.LENGTH_LONG).show();
     }
 
     @Override

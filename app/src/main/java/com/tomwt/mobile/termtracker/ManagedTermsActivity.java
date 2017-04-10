@@ -13,6 +13,8 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -110,6 +112,45 @@ public class ManagedTermsActivity extends AppCompatActivity {
 
             }
         }
+    }
+
+    private void finishEditing() {
+
+        Intent intent = new Intent();
+        intent.putExtra("returnValue", "9999");
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    // all three of the below methods are required to ensure full capture of the user leaving this activity
+    @Override
+    public boolean onOptionsItemSelected (MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                // NavUtils.navigateUpFromSameTask(this);
+                Intent intent = new Intent();
+                intent.putExtra("returnValue", "9999");
+                setResult(RESULT_OK, intent);
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent objEvent) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            onBackPressed();
+            return true;
+        }
+        return super.onKeyUp(keyCode, objEvent);
+    }
+
+    @Override
+    public void onBackPressed() {
+        finishEditing();
     }
 
 }

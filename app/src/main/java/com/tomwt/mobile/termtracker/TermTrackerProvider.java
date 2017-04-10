@@ -28,8 +28,15 @@ public class TermTrackerProvider extends ContentProvider {
     public static final String CONTENT_PARENT_TYPE = "ParentType";
     public static final String CONTENT_PARENT_ID = "ParentID";
 
+    public static final String CONTENT_SHAREDPREFERENCES = "SPTermTracker";
+    public static final String CONTENT_COURSE_START = "CourseStart";
+    public static final String CONTENT_COURSE_END = "CourseEnd";
+
     public static final int TYPE_ASSESSMENT = 1;
     public static final int TYPE_COURSE = 2;
+
+    public static final int COURSE_STARTALERT_OFFSET = 1000000000; // need to ensure we do not conflict with assessment alerts
+    public static final int COURSE_ENDALERT_OFFSET = 1500000000; // need to ensure we do not conflict with assessment alerts
 
     static {
         uriMatcher.addURI(AUTHORITY, BASE_PATH, NOTES);

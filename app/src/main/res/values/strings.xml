@@ -11,4 +11,5 @@
     <string name="title_activity_view_assessment">ViewAssessmentActivity</string>
     <string name="title_activity_view_assessment_alert">ViewAssessmentAlertActivity</string>
     <string name="title_activity_view_note">ViewNoteActivity</string>
+    <string name="title_activity_view_course_alert">ViewCourseAlertActivity</string>
 </resources>

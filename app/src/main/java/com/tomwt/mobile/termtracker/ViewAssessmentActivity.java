@@ -31,9 +31,9 @@ public class ViewAssessmentActivity extends AppCompatActivity {
     private static final int EDITOR_REQUEST_CODE = 1001;
 
     private String action;
-    private EditText editor;
-    private String notesFilter;
-    private String oldText;
+//    private EditText editor;
+//    private String notesFilter;
+//    private String oldText;
 
     // REFACTORED::  ADDED
     private String assessmentsFilter;
@@ -63,18 +63,18 @@ public class ViewAssessmentActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Assessment Information");
 
-        editor = (EditText) findViewById(R.id.editText);
+//        editor = (EditText) findViewById(R.id.editText);
         // REFACTORED:: ADDED
         titleEditor = (EditText) findViewById(R.id.data_title);
         detailsEditor = (EditText) findViewById(R.id.data_details);
@@ -101,7 +101,7 @@ public class ViewAssessmentActivity extends AppCompatActivity {
         if (uri == null) {
             action = Intent.ACTION_INSERT;
 //            getSupportActionBar().setTitle("INTENT.INSERT (uri==null)...");
-            fab.hide();
+//            fab.hide();
         } else {
             action = Intent.ACTION_EDIT;
 //            notesFilter = DBOpenHelper.NOTES_ID + "=" + uri.getLastPathSegment();

@@ -2,12 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.tomwt.mobile.termtracker">
 
-    <uses-feature android:name="android.hardware.camera" android:required="true" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
     <uses-feature android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
-
 
     <application
         android:allowBackup="true"
@@ -29,7 +30,6 @@
             android:name=".TermTrackerProvider"
             android:authorities="com.tomwt.mobile.termtracker.termtrackerprovider"
             android:exported="false" />
-
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.tomwt.mobile.termtracker.fileprovider"
@@ -37,7 +37,7 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"></meta-data>
+                android:resource="@xml/file_paths" />
         </provider>
 
         <activity
@@ -105,6 +105,15 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.tomwt.mobile.termtracker.ViewAssessmentActivity" />
+        </activity>
+        <activity
+            android:name=".ViewCourseAlertActivity"
+            android:label="@string/title_activity_view_course_alert"
+            android:parentActivityName=".ViewCourseActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.tomwt.mobile.termtracker.ViewCourseActivity" />
         </activity>
     </application>
 

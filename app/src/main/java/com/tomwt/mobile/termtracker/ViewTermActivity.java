@@ -38,9 +38,9 @@ public class ViewTermActivity extends AppCompatActivity {
     private static final int EDITOR_REQUEST_CODE = 1001;
 
     private String action;
-    private EditText editor;
-    private String notesFilter;
-    private String oldText;
+//    private EditText editor;
+//    private String notesFilter;
+//    private String oldText;
 
     // REFACTORED::  ADDED
     private String termsFilter;
@@ -79,7 +79,7 @@ public class ViewTermActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Term Information");
 
-        editor = (EditText) findViewById(R.id.editText);
+//        editor = (EditText) findViewById(R.id.editText);
         // REFACTORED:: ADDED
         titleEditor = (EditText) findViewById(R.id.data_title);
         startEditor = (EditText) findViewById(R.id.data_startDate);
@@ -91,16 +91,16 @@ public class ViewTermActivity extends AppCompatActivity {
 
         if (uri == null) {
             action = Intent.ACTION_INSERT;
-            getSupportActionBar().setTitle("INTENT.INSERT (uri==null)...");
+//            getSupportActionBar().setTitle("INTENT.INSERT (uri==null)...");
             fab.hide();
         } else {
             action = Intent.ACTION_EDIT;
-            notesFilter = DBOpenHelper.NOTES_ID + "=" + uri.getLastPathSegment();
+//            notesFilter = DBOpenHelper.NOTES_ID + "=" + uri.getLastPathSegment();
 
-            Cursor cursor = getContentResolver().query(uri, DBOpenHelper.NOTES_ALL_COLUMNS, notesFilter, null, null);
-            cursor.moveToFirst();
-            oldText = cursor.getString(cursor.getColumnIndex(DBOpenHelper.NOTES_DETAILS));
-            editor.setText(oldText);
+//            Cursor cursor = getContentResolver().query(uri, DBOpenHelper.NOTES_ALL_COLUMNS, notesFilter, null, null);
+//            cursor.moveToFirst();
+//            oldText = cursor.getString(cursor.getColumnIndex(DBOpenHelper.NOTES_DETAILS));
+//            editor.setText(oldText);
 //            editor.requestFocus();
 
             // REFACTORED:: ADDED
@@ -269,7 +269,7 @@ public class ViewTermActivity extends AppCompatActivity {
     }
 
     private void finishEditing() {
-        String newText = editor.getText().toString().trim();
+//        String newText = editor.getText().toString().trim();
 
         // REFACTORED:: ADDED
         String titleTextNew = titleEditor.getText().toString().trim();
@@ -285,12 +285,12 @@ public class ViewTermActivity extends AppCompatActivity {
                 }
                 break;
             case Intent.ACTION_EDIT:
-                if (newText.length() == 0 || titleTextNew.length() == 0 || startTextNew.length() == 0 || endTextNew.length() == 0) { // REFACTORED
+                if (titleTextNew.length() == 0 || startTextNew.length() == 0 || endTextNew.length() == 0) { // REFACTORED
 //                    deleteNote();
-                } else if (oldText.equals(newText) && titleTextOld.equals(titleTextNew) && startTextOld.equals(startTextNew) && endTextOld.equals(endTextNew)) { // REFACTORED
+                } else if (titleTextOld.equals(titleTextNew) && startTextOld.equals(startTextNew) && endTextOld.equals(endTextNew)) { // REFACTORED
                     setResult(RESULT_CANCELED);
                 } else {
-                    updateNote(newText);
+//                    updateNote(newText);
                     // REFACTORED:: ADDED
                     updateTerm(titleTextNew, startTextNew, endTextNew);
                 }
@@ -302,20 +302,20 @@ public class ViewTermActivity extends AppCompatActivity {
         finish();
     }
 
-    private void updateNote(String noteText) {
-        ContentValues values = new ContentValues();
-        values.put(DBOpenHelper.NOTES_DETAILS, noteText);
-        getContentResolver().update(TermTrackerProvider.CONTENT_URI, values, notesFilter, null);
-        Toast.makeText(this, "NOTE UPDATED...", Toast.LENGTH_SHORT).show();
-        setResult(RESULT_OK);
-    }
-
-    private void insertNote(String noteText) {
-        ContentValues values = new ContentValues();
-        values.put(DBOpenHelper.NOTES_DETAILS, noteText);
-        getContentResolver().insert(TermTrackerProvider.CONTENT_URI, values);
-        setResult(RESULT_OK);
-    }
+//    private void updateNote(String noteText) {
+//        ContentValues values = new ContentValues();
+//        values.put(DBOpenHelper.NOTES_DETAILS, noteText);
+//        getContentResolver().update(TermTrackerProvider.CONTENT_URI, values, notesFilter, null);
+//        Toast.makeText(this, "NOTE UPDATED...", Toast.LENGTH_SHORT).show();
+//        setResult(RESULT_OK);
+//    }
+//
+//    private void insertNote(String noteText) {
+//        ContentValues values = new ContentValues();
+//        values.put(DBOpenHelper.NOTES_DETAILS, noteText);
+//        getContentResolver().insert(TermTrackerProvider.CONTENT_URI, values);
+//        setResult(RESULT_OK);
+//    }
 
     // REFACTORED:: ADDED
     private void updateTerm(String titleText, String startText, String endText) {

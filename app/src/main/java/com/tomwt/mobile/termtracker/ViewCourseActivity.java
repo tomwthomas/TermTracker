@@ -42,9 +42,9 @@ public class ViewCourseActivity extends AppCompatActivity {
     private static final int EDITOR_REQUEST_CODE = 1001;
 
     private String action;
-    private EditText editor;
-    private String notesFilter;
-    private String oldText;
+//    private EditText editor;
+//    private String notesFilter;
+//    private String oldText;
 
     // REFACTORED::  ADDED
     private String coursesFilter;
@@ -94,7 +94,7 @@ public class ViewCourseActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Course Information");
 
-        editor = (EditText) findViewById(R.id.editText);
+//        editor = (EditText) findViewById(R.id.editText);
         // REFACTORED:: ADDED
         titleEditor = (EditText) findViewById(R.id.data_title);
         detailsEditor = (EditText) findViewById(R.id.data_details);
@@ -121,7 +121,7 @@ public class ViewCourseActivity extends AppCompatActivity {
 
         if (uri == null) {
             action = Intent.ACTION_INSERT;
-            getSupportActionBar().setTitle("INTENT.INSERT (uri==null)...");
+//            getSupportActionBar().setTitle("INTENT.INSERT (uri==null)...");
             fab.hide();
         } else {
             action = Intent.ACTION_EDIT;
@@ -287,6 +287,21 @@ public class ViewCourseActivity extends AppCompatActivity {
         return true;
     }
 
+    private void manageCourseAlerts() {
+        Toast.makeText(this, "MANAGE COURSE ALERTS CALLED...", Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(ViewCourseActivity.this, ViewCourseAlertActivity.class);
+
+//        Uri alertURI = Uri.withAppendedPath(TermTrackerProvider.CONTENT_URI_PATHLESS, DBOpenHelper.TABLE_ALERTS);
+//        alertURI = alertURI.parse(alertURI + "/" + currentCourseID);
+//        intent.putExtra(TermTrackerProvider.CONTENT_ITEM_TYPE, alertURI);
+        intent.putExtra(TermTrackerProvider.CONTENT_PARENT_TYPE, TermTrackerProvider.TYPE_COURSE);
+        intent.putExtra(TermTrackerProvider.CONTENT_PARENT_ID, currentCourseID);
+        intent.putExtra(TermTrackerProvider.CONTENT_COURSE_START, startTextOld);
+        intent.putExtra(TermTrackerProvider.CONTENT_COURSE_END, endTextOld);
+
+        startActivityForResult(intent, EDITOR_REQUEST_CODE);
+    }
+
     private void addNote() {
         Toast.makeText(this, "ADD NOTE CALLED...", Toast.LENGTH_LONG).show();
         Intent intent = new Intent(ViewCourseActivity.this, ViewNoteActivity.class);
@@ -394,6 +409,9 @@ public class ViewCourseActivity extends AppCompatActivity {
                 intent.putExtra("returnValue", "9999");
                 setResult(RESULT_OK, intent);
                 finish();
+                return true;
+            case R.id.menu_manageCourseAlerts:
+                manageCourseAlerts();
                 return true;
             case R.id.menu_addNote:
                 addNote();
